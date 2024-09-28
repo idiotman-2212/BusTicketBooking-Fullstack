@@ -202,3 +202,21 @@ CREATE TABLE `payment_history` (
 LOCK TABLES `payment_history` WRITE;
 UNLOCK TABLES;
 
+-- Tích xu để đổi thưởng-------------------------
+ALTER TABLE `user` ADD COLUMN `loyalty_points` DECIMAL(10, 2) DEFAULT 0.00;
+ALTER TABLE `booking` 
+ADD COLUMN `points_earned` DECIMAL(10, 2) DEFAULT 0.00,
+ADD COLUMN `points_used` DECIMAL(10, 2) DEFAULT 0.00;
+CREATE TABLE `loyalty_transaction` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `amount` decimal(10, 2) NOT NULL,
+  `transaction_date` datetime(6) NOT NULL,
+  `transaction_type` enum('EARN', 'USE', 'EXPIRE') NOT NULL,
+  `booking_id` bigint,
+  PRIMARY KEY (`id`),
+  KEY `FK_loyalty_transaction_user` (`username`),
+  KEY `FK_loyalty_transaction_booking` (`booking_id`),
+  CONSTRAINT `FK_loyalty_transaction_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`),
+  CONSTRAINT `FK_loyalty_transaction_booking` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
