@@ -178,3 +178,15 @@ CREATE TABLE `loyalty_transaction` (
   CONSTRAINT `FK_loyalty_transaction_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`),
   CONSTRAINT `FK_loyalty_transaction_booking` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE Notification (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    trip_id BIGINT,
+    message VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (username) REFERENCES `user` (username),
+    FOREIGN KEY (trip_id) REFERENCES trip (id)
+);
+
