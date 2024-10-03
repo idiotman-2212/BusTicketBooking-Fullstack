@@ -185,9 +185,12 @@ CREATE TABLE `notification` (
   `message` TEXT NOT NULL,
   `send_date_time` DATETIME(6) NOT NULL,
   `sender_username` VARCHAR(255) DEFAULT NULL,
+  `recipient_type` ENUM('INDIVIDUAL', 'GROUP', 'ALL') NOT NULL,
+  `recipient_identifiers` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_notification_sender` FOREIGN KEY (`sender_username`) REFERENCES `user` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 CREATE TABLE `user_notification` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
