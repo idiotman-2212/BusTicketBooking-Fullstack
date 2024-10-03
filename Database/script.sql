@@ -180,13 +180,22 @@ CREATE TABLE `loyalty_transaction` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `notification` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `content` varchar(255) NOT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `username` varchar(255) DEFAULT NULL, -- Gửi cho một người dùng cụ thể
-  `group_id` bigint DEFAULT NULL,       -- Gửi cho một nhóm người dùng
-  `is_read` bit(1) DEFAULT 0,           -- Trạng thái đã đọc hay chưa
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(255) NOT NULL,
+  `message` TEXT NOT NULL,
+  `send_date_time` DATETIME(6) NOT NULL,
+  `sender_username` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`username`) REFERENCES `user` (`username`)
-);
+  CONSTRAINT `FK_notification_sender` FOREIGN KEY (`sender_username`) REFERENCES `user` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `user_notification` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `notification_id` BIGINT NOT NULL,
+  `username` VARCHAR(255) NOT NULL,
+  `is_read` BIT(1) NOT NULL DEFAULT b'0',
+  `read_date_time` DATETIME(6) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `FK_user_notification_notification` FOREIGN KEY (`notification_id`) REFERENCES `notification` (`id`),
+  CONSTRAINT `FK_user_notification_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
