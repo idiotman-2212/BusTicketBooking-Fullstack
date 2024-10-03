@@ -179,26 +179,32 @@ CREATE TABLE `loyalty_transaction` (
   CONSTRAINT `FK_loyalty_transaction_booking` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+DROP TABLE IF EXISTS `notification`;
 CREATE TABLE `notification` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `title` VARCHAR(255) NOT NULL,
-  `message` TEXT NOT NULL,
-  `send_date_time` DATETIME(6) NOT NULL,
-  `sender_username` VARCHAR(255) DEFAULT NULL,
-  `recipient_type` ENUM('INDIVIDUAL', 'GROUP', 'ALL') NOT NULL,
-  `recipient_identifiers` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `FK_notification_sender` FOREIGN KEY (`sender_username`) REFERENCES `user` (`username`)
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(255) NOT NULL,             -- Tiêu đề thông báo
+    `message` TEXT NOT NULL,                   -- Nội dung thông báo
+    `send_date_time` DATETIME(6) NOT NULL,     -- Thời gian gửi thông báo
+    `sender_username` VARCHAR(255) DEFAULT NULL,  -- Người gửi (admin hoặc hệ thống)
+    `recipient_type` ENUM('INDIVIDUAL', 'GROUP', 'ALL') NOT NULL, -- Loại người nhận (một, nhiều, hoặc tất cả)
+    `trip_id` BIGINT DEFAULT NULL,             -- Nếu là thông báo liên quan đến chuyến đi
+    `recipient_identifiers` VARCHAR(255) DEFAULT NULL,  -- Nếu là nhóm, chứa username người nhận (cách nhau bởi dấu phẩy)
+    PRIMARY KEY (`id`),
+    CONSTRAINT `FK_notification_sender` FOREIGN KEY (`sender_username`) REFERENCES `user` (`username`),
+    CONSTRAINT `FK_notification_trip` FOREIGN KEY (`trip_id`) REFERENCES `trip` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+
+DROP TABLE IF EXISTS `user_notification`;
 CREATE TABLE `user_notification` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `notification_id` BIGINT NOT NULL,
-  `username` VARCHAR(255) NOT NULL,
-  `is_read` BIT(1) NOT NULL DEFAULT b'0',
-  `read_date_time` DATETIME(6) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `FK_user_notification_notification` FOREIGN KEY (`notification_id`) REFERENCES `notification` (`id`),
-  CONSTRAINT `FK_user_notification_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `notification_id` BIGINT NOT NULL,        -- Tham chiếu đến bảng notification
+    `username` VARCHAR(255) NOT NULL,         -- Người dùng nhận thông báo
+    `is_read` BIT(1) NOT NULL DEFAULT b'0',   -- Đánh dấu đã đọc hay chưa
+    `read_date_time` DATETIME(6) DEFAULT NULL, -- Thời gian người dùng đọc thông báo
+    PRIMARY KEY (`id`),
+    CONSTRAINT `FK_user_notification_notification` FOREIGN KEY (`notification_id`) REFERENCES `notification` (`id`),
+    CONSTRAINT `FK_user_notification_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
