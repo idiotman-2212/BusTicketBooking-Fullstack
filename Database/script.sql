@@ -190,3 +190,25 @@ CREATE TABLE Notification (
     FOREIGN KEY (trip_id) REFERENCES trip (id)
 );
 
+DROP TABLE IF EXISTS `notification`;
+CREATE TABLE `notification` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `user_notification`;
+
+
+CREATE TABLE `user_notification` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `notification_id` bigint NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `read` bit(1) DEFAULT 0, -- Trạng thái đã đọc
+  `sent_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `FK_user_notification_notification` FOREIGN KEY (`notification_id`) REFERENCES `notification` (`id`),
+  CONSTRAINT `FK_user_notification_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
