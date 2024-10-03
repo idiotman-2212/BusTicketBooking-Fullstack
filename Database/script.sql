@@ -179,36 +179,14 @@ CREATE TABLE `loyalty_transaction` (
   CONSTRAINT `FK_loyalty_transaction_booking` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE Notification (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    trip_id BIGINT,
-    message VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_read BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (username) REFERENCES `user` (username),
-    FOREIGN KEY (trip_id) REFERENCES trip (id)
-);
-
-DROP TABLE IF EXISTS `notification`;
 CREATE TABLE `notification` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `content` text NOT NULL,
-  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-DROP TABLE IF EXISTS `user_notification`;
-
-
-CREATE TABLE `user_notification` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `notification_id` bigint NOT NULL,
-  `username` varchar(255) NOT NULL,
-  `read` bit(1) DEFAULT 0, -- Trạng thái đã đọc
-  `sent_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
+  `content` varchar(255) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `username` varchar(255) DEFAULT NULL, -- Gửi cho một người dùng cụ thể
+  `group_id` bigint DEFAULT NULL,       -- Gửi cho một nhóm người dùng
+  `is_read` bit(1) DEFAULT 0,           -- Trạng thái đã đọc hay chưa
   PRIMARY KEY (`id`),
-  CONSTRAINT `FK_user_notification_notification` FOREIGN KEY (`notification_id`) REFERENCES `notification` (`id`),
-  CONSTRAINT `FK_user_notification_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  FOREIGN KEY (`username`) REFERENCES `user` (`username`)
+);
 
