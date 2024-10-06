@@ -208,3 +208,21 @@ CREATE TABLE `user_notification` (
     CONSTRAINT `FK_user_notification_user` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+CREATE TABLE `review` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `booking_id` bigint NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `driver_rating` int DEFAULT NULL,
+  `coach_rating` int DEFAULT NULL,
+  `trip_rating` int DEFAULT NULL,
+  `comment` text,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_review_booking` (`booking_id`),
+  CONSTRAINT `FK_review_booking` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`),
+  CONSTRAINT `FK_review_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`username`),
+  CHECK (`driver_rating` BETWEEN 1 AND 5),
+  CHECK (`coach_rating` BETWEEN 1 AND 5),
+  CHECK (`trip_rating` BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
