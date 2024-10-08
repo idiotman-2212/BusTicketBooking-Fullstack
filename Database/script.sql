@@ -209,9 +209,10 @@ CREATE TABLE `user_notification` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+DROP TABLE IF EXISTS `review`;
 CREATE TABLE `review` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `booking_id` bigint NOT NULL,
+  `trip_id` bigint NOT NULL,
   `user_id` varchar(255) NOT NULL,
   `driver_rating` int DEFAULT NULL,
   `coach_rating` int DEFAULT NULL,
@@ -219,8 +220,8 @@ CREATE TABLE `review` (
   `comment` text,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_review_booking` (`booking_id`),
-  CONSTRAINT `FK_review_booking` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`),
+  UNIQUE KEY `UK_review_trip` (`trip_id`),
+  CONSTRAINT `FK_review_trip` FOREIGN KEY (`trip_id`) REFERENCES `trip` (`id`),
   CONSTRAINT `FK_review_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`username`),
   CHECK (`driver_rating` BETWEEN 1 AND 5),
   CHECK (`coach_rating` BETWEEN 1 AND 5),
