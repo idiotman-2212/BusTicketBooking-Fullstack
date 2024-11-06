@@ -22,7 +22,7 @@ public class ScheduleJobService{
     private final BookingRepo bookingRepo;
     private final NotificationRepo notificationRepo;
     private final UserNotificationRepo userNotificationRepo;
-    private final SmsService smsService;
+//    private final SmsService smsService;
     private final MailService mailService;
     private final Environment env;
     private final PaymentHistoryRepo paymentHistoryRepo;
