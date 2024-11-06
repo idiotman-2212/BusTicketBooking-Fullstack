@@ -428,7 +428,7 @@ select * from province p ;
 select * from location l ;
 select * from loyalty_transaction lt ;
 select * from `user` u ;
-select * from booking b ;
+select * from booking b ; 
 select * from trip t ;
 select * from discount d ;
 select * from coach c ;
@@ -441,15 +441,16 @@ select * from cargo c ;
 select * from booking_cargo bc ;
 select * from trip_log tl ;
 
--- Insert dữ liệu vào bảng trip với các trường mới
-INSERT INTO `trip` 
-(`completed`, `departure_date_time`, `duration`, `price`, `coach_id`, `dest_id`, `discount_id`, `driver_id`, `source_id`, `drop_off_location_id`, `pick_up_location_id`) 
-VALUES
-(0, '2024-10-30 08:30:00', 5.5, 500000.00, 1, 9, 1, 1, 8, 9, 8),
-(0, '2024-10-26 09:00:00.000000', 4.0, 300000.00, 2, 8, 2, 2, 7, 7, 8);  -- Đà Nẵng -> Hà Nội
-(0, '2024-10-27 07:15:00.000000', 6.0, 600000.00, 3, 48, 3, 3, 19, 103, 203),  -- Quảng Ninh -> Đồng Nai
-(1, '2024-10-23 06:45:00.000000', 7.0, 700000.00, 4, 31, NULL, 4, 2, 104, 204), -- Khánh Hòa -> Bà Rịa - Vũng Tàu
-(0, '2024-10-28 10:00:00.000000', 8.0, 800000.00, 1, 35, NULL, 1, 56, 105, 205); -- Lâm Đồng -> Thừa Thiên Huế
+
+
+
+SELECT bc.price, bc.quantity, c.name, c.base_price
+FROM booking_cargo bc
+JOIN cargo c ON bc.cargo_id = c.id
+WHERE bc.booking_id = :bookingId
+  AND bc.quantity > 0;
+
+
 
 
 
