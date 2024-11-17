@@ -55,13 +55,7 @@ public class CoachServiceImpl implements CoachService {
     @Transactional
     @CacheEvict(cacheNames = {"coaches", "coaches_paging"}, allEntries = true)
     public Coach save(Coach coach) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         coachValidator.validate(coach);
-
         if (!checkDuplicateCoachInfo("ADD", coach.getId(), "name", coach.getName())) {
             throw new ExistingResourceException("Name<%s> is already exist".formatted(coach.getName()));
         }
@@ -69,7 +63,6 @@ public class CoachServiceImpl implements CoachService {
         if (!checkDuplicateCoachInfo("ADD", coach.getId(), "licensePlate", coach.getLicensePlate())) {
             throw new ExistingResourceException("License plate<%s> is already exist".formatted(coach.getLicensePlate()));
         }
-
         return coachRepo.save(coach);
     }
 
@@ -77,11 +70,6 @@ public class CoachServiceImpl implements CoachService {
     @Transactional
     @CacheEvict(cacheNames = {"coaches", "coaches_paging"}, allEntries = true)
     public Coach update(Coach coach) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         coachValidator.validate(coach);
 
         if (!checkDuplicateCoachInfo("EDIT", coach.getId(), "name", coach.getName())) {
@@ -91,7 +79,6 @@ public class CoachServiceImpl implements CoachService {
         if (!checkDuplicateCoachInfo("EDIT", coach.getId(), "licensePlate", coach.getLicensePlate())) {
             throw new ExistingResourceException("License plate<%d> is already exist".formatted(coach.getId()));
         }
-
         return coachRepo.save(coach);
     }
 
@@ -104,9 +91,7 @@ public class CoachServiceImpl implements CoachService {
         if (!foundCoach.getTrips().isEmpty()) {
             throw new ExistingResourceException("Coach<%d> has run some trips, can't be deleted".formatted(id));
         }
-
         coachRepo.deleteById(id);
-
         return "Delete Coach<%d> successfully".formatted(id);
     }
 

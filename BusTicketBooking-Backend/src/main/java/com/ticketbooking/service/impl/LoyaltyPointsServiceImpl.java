@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class LoyaltyPointsServiceImpl implements LoyaltyPointsService {
-
     private static final BigDecimal POINTS_RATE = new BigDecimal("0.005");
 
     private final UserRepo userRepo;
@@ -46,19 +45,15 @@ public class LoyaltyPointsServiceImpl implements LoyaltyPointsService {
         User user = userRepo.findByUsername(booking.getUser().getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Tính toán số điểm dựa trên tổng thanh toán
         BigDecimal pointsEarned = booking.getTotalPayment().multiply(POINTS_RATE);
 
-        // Đảm bảo pointsEarned không bị null hoặc lỗi
         if (pointsEarned == null || pointsEarned.compareTo(BigDecimal.ZERO) < 0) {
             pointsEarned = BigDecimal.ZERO;
         }
 
-        // Gán pointsEarned cho đối tượng booking
         booking.setPointsEarned(pointsEarned);
-        bookingRepo.save(booking);  // Lưu lại đối tượng Booking sau khi gán điểm thưởng
+        bookingRepo.save(booking);
 
-        // Tạo giao dịch Loyalty
         LoyaltyTransaction transaction = new LoyaltyTransaction();
         transaction.setUser(user);
         transaction.setBooking(booking);
@@ -67,21 +62,18 @@ public class LoyaltyPointsServiceImpl implements LoyaltyPointsService {
         transaction.setTransactionType(TransactionType.EARN);
         loyaltyTransactionRepo.save(transaction);
 
-        // Cộng điểm cho người dùng
         userRepo.addLoyaltyPoints(user.getUsername(), pointsEarned);
     }
 
     @Override
     public PageResponse<LoyaltyTransactionDTO> getLoyaltyTransactions(String username, Integer page, Integer limit) {
         Page<LoyaltyTransaction> transactionPage = loyaltyTransactionRepo.findByUserUsernameOrderById(username, PageRequest.of(page, limit));
-
         PageResponse<LoyaltyTransactionDTO> pageResponse = new PageResponse<>();
         pageResponse.setDataList(transactionPage.getContent().stream().map(this::convertToDTO).toList());
         pageResponse.setPageCount(transactionPage.getTotalPages());
         pageResponse.setTotalElements(transactionPage.getTotalElements());
         return pageResponse;
     }
-
 
     @Override
     @Transactional
@@ -128,7 +120,7 @@ public class LoyaltyPointsServiceImpl implements LoyaltyPointsService {
                     dto.setTransactionId(transaction.getId());
                     dto.setAmount(transaction.getAmount());
                     dto.setTransactionDate(transaction.getTransactionDate());
-                    dto.setTransactionType(transaction.getTransactionType().name()); // Chuyển đổi enum thành String
+                    dto.setTransactionType(transaction.getTransactionType().name());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -136,29 +128,25 @@ public class LoyaltyPointsServiceImpl implements LoyaltyPointsService {
 
     public LoyaltyTransactionDTO convertToDTO(LoyaltyTransaction transaction) {
         Booking booking = transaction.getBooking();
-        Trip trip = booking.getTrip(); // Lấy thông tin chuyến đi từ đặt chỗ
-        User user = transaction.getUser(); // Lấy thông tin người dùng từ giao dịch
+        Trip trip = booking.getTrip();
+        User user = transaction.getUser();
 
         return LoyaltyTransactionDTO.builder()
-                // Thông tin giao dịch
                 .transactionId(transaction.getId())
                 .amount(transaction.getAmount())
                 .transactionDate(transaction.getTransactionDate())
                 .transactionType(transaction.getTransactionType().name())
 
-                // Thông tin người dùng
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
 
-                // Thông tin đặt chỗ
                 .bookingId(booking.getId())
                 .seatNumber(booking.getSeatNumber())
                 .totalPayment(booking.getTotalPayment())
                 .bookingDateTime(booking.getBookingDateTime())
 
-                // Thông tin chuyến đi
                 .tripId(trip.getId())
                 .source(trip.getSource().getName())
                 .destination(trip.getDestination().getName())
@@ -166,6 +154,4 @@ public class LoyaltyPointsServiceImpl implements LoyaltyPointsService {
                 .price(trip.getPrice())
                 .build();
     }
-
-
 }

@@ -12,8 +12,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class ScheduleJobService{
             System.out.println("Unpaid booking ID: " + booking.getId() + " | Departure Time: " + booking.getTrip().getDepartureDateTime());
             String passengerName = booking.getCustFirstName() + " " + booking.getCustLastName();
             String message = String.format("Kính chào %s,\nVé đặt của quý khách chưa được thanh toán. Vui lòng thanh toán trước 24 giờ khởi hành.", passengerName);
-            sendNotificationAndMessages(booking, "Nhắc nhở thanh toán", message);
+            sendNotificationAndMessages(booking, "Thanh toán vé đặt", message);
         }
     }
 
@@ -90,11 +92,32 @@ public class ScheduleJobService{
             System.out.println("Booking ID " + booking.getId() + " không có người dùng gắn liền, không thể gửi thông báo.");
             return;
         }
+        Trip trip = booking.getTrip();
+        String sỏurce = trip != null ? trip.getSource().getName() : "Chuyến đi không xác định";
+        String destination = trip != null ? trip.getDestination().getName() : "Chuyến đi không xác định";
+        String departureTime = trip != null ? trip.getDepartureDateTime().toString() : "Không có thông tin";
+        String pickUpLocation = trip != null && trip.getPickUpLocation() != null ? trip.getPickUpLocation().getAddress() : "Không có thông tin địa điểm đón";
+        String dropOffLocation = trip != null && trip.getDropOffLocation() != null ? trip.getDropOffLocation().getAddress() : "Không có thông tin địa điểm trả";
+        String seatNumbers = booking.getSeatNumber() != null ? booking.getSeatNumber() : "Không có thông tin ghế";
+        String price = booking.getTotalPayment() != null ? NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(booking.getTotalPayment()) : "Không có thông tin giá";
+
+        // Thông báo chi tiết với đầy đủ thông tin
+        String detailedMessage = String.format(
+                "%s\n\nThông tin chuyến đi:\n" +
+                        "- Tuyến: %s\n" +
+                        "- Giờ khởi hành: %s\n" +
+                        "- Địa điểm đón: %s\n" +
+                        "- Địa điểm trả: %s\n" +
+                        "- Chỗ ngồi: %s\n" +
+                        "- Giá vé: %s\n",
+                message, sỏurce, destination, departureTime, pickUpLocation, dropOffLocation, seatNumbers, price
+        );
+
 
         // Tạo và lưu thông báo
         Notification notification = new Notification();
         notification.setTitle(title);
-        notification.setMessage(message);
+        notification.setMessage(detailedMessage);
         notification.setSendDateTime(LocalDateTime.now());
         notification.setRecipientType(RecipientType.INDIVIDUAL);
         notification.setRecipientIdentifiers(booking.getUser().getUsername());

@@ -42,7 +42,6 @@ public class BookingServiceImpl implements BookingService {
     private final CargoRepo cargoRepo;
     private final BookingCargoRepo bookingCargoRepo;
 
-
     @Override
     @Cacheable(cacheNames = {"bookings"}, key = "#phone")
     public List<Booking> findAllByPhone(String phone) {
@@ -54,21 +53,18 @@ public class BookingServiceImpl implements BookingService {
         User foundUser = userRepo.findByUsername(username).get();
         return bookingRepo.findAllByUser(foundUser);
     }
-
     @Override
     @Transactional
     public Booking findById(Long id) {
         return bookingRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found Booking<%d>".formatted(id)));
     }
-
     @Override
     @Transactional
     public Booking getBookingWithCargos(Long bookingId) {
         return bookingRepo.findByIdWithCargos(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
     }
-
     @Override
     @Cacheable(cacheNames = {"bookings"})
     public List<Booking> findAll() {
@@ -85,7 +81,6 @@ public class BookingServiceImpl implements BookingService {
         pageResponse.setTotalElements(pageSlice.getTotalElements());
         return pageResponse;
     }
-
     //đặt vé site1 khách đã đăng nhập vào hệ thống
     @Override
     @Transactional

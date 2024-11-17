@@ -22,14 +22,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
-
-
     private final LocationRepo locationRepo;
-
     private final ObjectValidator<Location> objectValidator;
-
     private final UtilRepo utilRepo;
-
     private final TripRepo tripRepo;
 
     @Override
@@ -70,7 +65,6 @@ public class LocationServiceImpl implements LocationService {
         if (!checkDuplicateLocationInfo("ADD", location.getId(), "address", location.getAddress())) {
             throw new ExistingResourceException("Location address <%s> is already exist".formatted(location.getAddress()));
         }
-
 //        if (!checkDuplicateLocationInfo("ADD", location.getId(), "district", location.getDistrict())) {
 //            throw new ExistingResourceException("Location district <%s> is already exist".formatted(location.getDistrict()));
 //        }
@@ -78,7 +72,6 @@ public class LocationServiceImpl implements LocationService {
 //        if (!checkDuplicateLocationInfo("ADD", location.getId(), "ward", location.getWard())) {
 //            throw new ExistingResourceException("Location ward <%s> is already exist".formatted(location.getWard()));
 //        }
-
         return locationRepo.save(location);
     }
 
@@ -112,7 +105,6 @@ public class LocationServiceImpl implements LocationService {
         if (isLocationInUse) {
             throw new ExistingResourceException("Location <%d> is being used in trips, can't be delete.".formatted(id));
         }
-
         foundLocation.setIsActive(false);
         locationRepo.save(foundLocation);
 

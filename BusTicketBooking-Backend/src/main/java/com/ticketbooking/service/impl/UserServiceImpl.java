@@ -34,15 +34,10 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
-
     private final UserRepo userRepo;
-
     private final UtilRepo utilRepo;
-
     private final ObjectValidator<User> userValidator;
-
     private final UserPermissionRepo permissionRepo;
-
     private final RoleRepo roleRepo;
 
     @Override
@@ -71,13 +66,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @CacheEvict(cacheNames = {"users", "users_paging"}, allEntries = true)
     public User save(User user) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         userValidator.validate(user);
-
         if (!checkDuplicateUserInfo("ADD", user.getUsername(), "username", user.getUsername())) {
             throw new ExistingResourceException("Username<%s> is already exist".formatted(user.getUsername()));
         }
@@ -89,7 +78,6 @@ public class UserServiceImpl implements UserService {
         if (!checkDuplicateUserInfo("ADD", user.getUsername(), "phone", user.getPhone())) {
             throw new ExistingResourceException("Phone<%s> is already exist".formatted(user.getPhone()));
         }
-
         String encodedPwd = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPwd);
         User createdUser = userRepo.save(user);
@@ -113,20 +101,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @CacheEvict(cacheNames = {"users", "users_paging"}, allEntries = true)
     public User update(User user) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         userValidator.validate(user);
-
         if (!checkDuplicateUserInfo("EDIT", user.getUsername(), "email", user.getEmail())) {
             throw new ExistingResourceException("Email<%s> is already exist".formatted(user.getEmail()));
         }
         if (!checkDuplicateUserInfo("EDIT", user.getUsername(), "phone", user.getPhone())) {
             throw new ExistingResourceException("Phone<%s> is already exist".formatted(user.getPhone()));
         }
-
         return userRepo.save(user);
     }
 
@@ -134,14 +115,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @CacheEvict(cacheNames = {"users", "users_paging"}, allEntries = true)
     public String delete(String username) {
-
         User foundUser = findByUsername(username);
 
         if (!foundUser.getBookings().isEmpty())
             throw new ExistingResourceException("User<%s> has booked some tickets, can't be deleted".formatted(username));
-
         userRepo.deleteByUsername(username);
-
         return "Delete User<%s> successfully".formatted(username);
     }
 
@@ -156,9 +134,7 @@ public class UserServiceImpl implements UserService {
     public PermissionDto getUserPermission(String username) {
         var user = userRepo.findByUsername(username).get();
         List<UserPermission> permissionsResult = permissionRepo.findAllByUser(user);
-
         Map<String, List<String>> permissions = transformRoles(permissionsResult);
-
         return PermissionDto.builder().permission(permissions).build();
     }
 
@@ -166,7 +142,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public PermissionDto updateUserScreenPermission(ScreenPermissionDto screenPermissionDto) {
         User user = userRepo.findByUsername(screenPermissionDto.getUsername()).get();
-
         // delete old crud roles not in main roles
         permissionRepo.deleteOldUserCrudRoles(screenPermissionDto.getScreen(), user.getUsername());
 
@@ -186,9 +161,7 @@ public class UserServiceImpl implements UserService {
             });
             permissionsResult = permissionRepo.saveAll(upList);
         }
-
         Map<String, List<String>> permissions = transformRoles(permissionsResult);
-
         return PermissionDto.builder().permission(permissions).build();
     }
 

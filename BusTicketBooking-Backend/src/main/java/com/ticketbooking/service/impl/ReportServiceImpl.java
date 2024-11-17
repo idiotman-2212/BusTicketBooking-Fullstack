@@ -23,7 +23,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
-
     private final ReportRepo reportRepo;
 
     @Override

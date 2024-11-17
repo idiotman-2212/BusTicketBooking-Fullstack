@@ -4,7 +4,6 @@ import com.ticketbooking.dto.PageResponse;
 import com.ticketbooking.exception.ExistingResourceException;
 import com.ticketbooking.exception.ResourceNotFoundException;
 import com.ticketbooking.model.Cargo;
-import com.ticketbooking.model.Driver;
 import com.ticketbooking.repo.CargoRepo;
 import com.ticketbooking.repo.UtilRepo;
 import com.ticketbooking.service.CargoService;
@@ -81,9 +80,7 @@ public class CargoServiceImpl implements CargoService {
         if (!foundCargo.getBookingCargos().isEmpty()) {
             throw new ExistingResourceException("Cargo <%d> has been using some bookings, can't be deleted".formatted(id));
         }
-
         cargoRepo.deleteById(id);
-
         return "Delete Cargo <%d> successfully".formatted(id);
     }
 

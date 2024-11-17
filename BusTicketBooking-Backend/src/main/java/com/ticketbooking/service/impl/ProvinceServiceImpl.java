@@ -13,9 +13,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProvinceServiceImpl implements ProvinceService {
-
     private final ProvinceRepo provinceRepo;
-
     @Override
     public Province findById(Long id) {
         return provinceRepo.findById(id)

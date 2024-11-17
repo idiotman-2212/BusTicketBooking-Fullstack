@@ -24,11 +24,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class DiscountServiceImpl implements DiscountService {
-
     private final DiscountRepo discountRepo;
-
     private final ObjectValidator<Discount> objectValidator;
-
     private final UtilRepo utilRepo;
 
     @Override
@@ -69,22 +66,14 @@ public class DiscountServiceImpl implements DiscountService {
     @Transactional
     @CacheEvict(cacheNames = {"discounts", "discounts_paging"}, allEntries = true)
     public Discount save(Discount discount) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         objectValidator.validate(discount);
 
         if (!checkDuplicateDiscountInfo("ADD", discount.getId(), "code", discount.getCode())) {
             throw new ExistingResourceException("Discount Code<%s> is already exist".formatted(discount.getCode()));
         }
-
-        // check start date < end date
         if (discount.getStartDateTime().isAfter(discount.getEndDateTime())) {
             throw new ResourceNotFoundException("Invalid: START DATE is after END DATE!");
         }
-
         return discountRepo.save(discount);
     }
 
@@ -92,22 +81,13 @@ public class DiscountServiceImpl implements DiscountService {
     @Transactional
     @CacheEvict(cacheNames = {"discounts", "discounts_paging"}, allEntries = true)
     public Discount update(Discount discount) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         objectValidator.validate(discount);
-
         if (!checkDuplicateDiscountInfo("EDIT", discount.getId(), "code", discount.getCode())) {
             throw new ExistingResourceException("Discount Code<%s> is already exist".formatted(discount.getCode()));
         }
-
-        // check start date < end date
         if (discount.getStartDateTime().isAfter(discount.getEndDateTime())) {
             throw new ResourceNotFoundException("Invalid: START DATE can't be after END DATE!");
         }
-
         return discountRepo.save(discount);
     }
 
@@ -117,13 +97,10 @@ public class DiscountServiceImpl implements DiscountService {
     public String delete(Long id) {
 
         Discount foundDiscount = findById(id);
-
         if (!foundDiscount.getTrips().isEmpty()) {
             throw new ExistingResourceException("This Discount<%d> has been used, can't be deleted".formatted(id));
         }
-
         discountRepo.deleteById(id);
-
         return "Delete Discount<%d> successfully!".formatted(id);
     }
 
@@ -137,8 +114,6 @@ public class DiscountServiceImpl implements DiscountService {
     @Service
     @RequiredArgsConstructor
     public class DiscountService {
-
-        // existing methods
 
         public Discount createDiscountFromPoints(int points) {
             BigDecimal discountAmount = calculateDiscountAmount(points);

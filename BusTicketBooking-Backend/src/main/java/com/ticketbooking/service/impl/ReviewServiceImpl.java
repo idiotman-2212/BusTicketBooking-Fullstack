@@ -23,7 +23,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
-
     private final ReviewRepo reviewRepo;
     private final TripRepo tripRepo;
     private final UserRepo userRepo;
@@ -38,7 +37,6 @@ public class ReviewServiceImpl implements ReviewService {
             throw new IllegalArgumentException("You have already reviewed this trip.");
         }
 
-        // Tiếp tục tạo đánh giá mới
         Review review = Review.builder()
                 .trip(tripRepo.findById(reviewRequest.getTripId()).orElseThrow())
                 .user(user)
@@ -48,7 +46,6 @@ public class ReviewServiceImpl implements ReviewService {
                 .comment(reviewRequest.getComment())
                 .createdAt(LocalDateTime.now())
                 .build();
-
         reviewRepo.save(review);
         return review;
     }

@@ -20,11 +20,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +69,6 @@ public class TripServiceImpl implements TripService {
     @Override
     @Transactional
     public void completeTrip(Long tripId) {
-
         Trip trip = tripRepo.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trip not found with ID: " + tripId));
 
@@ -84,10 +85,8 @@ public class TripServiceImpl implements TripService {
         if (LocalDateTime.now().isBefore(estimatedCompletionTime)) {
             throw new InvalidInputException("Trip has not been completed yet.");
         }
-
         trip.setCompleted(true);
         tripRepo.save(trip);
-
         System.out.println("Trip with ID " + tripId + " has been marked as completed.");
 
         // Lấy danh sách các booking liên quan đến chuyến đi này
@@ -95,12 +94,10 @@ public class TripServiceImpl implements TripService {
 
         for (Booking booking : bookings) {
             User user = booking.getUser();
-
             if (user == null) {
                 System.out.println("Booking " + booking.getId() + " does not have a user associated with it. No points will be earned.");
                 continue;
             }
-
             boolean transactionExists = loyaltyTransactionRepo.existsByBookingId(booking.getId());
 
             // Điều kiện: Trạng thái thanh toán là PAID và chưa tồn tại giao dịch trước đó
@@ -122,24 +119,18 @@ public class TripServiceImpl implements TripService {
                         .transactionDate(LocalDateTime.now())
                         .transactionType(TransactionType.EARN)
                         .build();
-
-
                 userRepo.save(user);
                 loyaltyTransactionRepo.save(transaction);
                 bookingRepo.save(booking);
 
                 System.out.println("Loyalty points and transaction saved for booking " + booking.getId());
-                // Gửi thông báo đến người dùng
                 String title = "THÔNG BÁO HOÀN THÀNH CHUYẾN ĐI";
                 String message = "Chuyến đi của bạn từ " + trip.getSource().getName() +
                         " (Đón tại: " + trip.getPickUpLocation().getName() + ")" +
                         " đến " + trip.getDestination().getName() +
                         " (Trả tại: " + trip.getDropOffLocation().getName() + ")" +
-                        " đã hoàn thành. Bạn đã nhận được " + pointsEarned + " điểm xu.";
-
-
-                sendTripCompletionNotification(user, trip,pointsEarned, message);
-
+                        " đã hoàn thành. Bạn đã nhận được " + formatCurrencyVN(pointsEarned) + " điểm xu.";
+                sendTripCompletionNotification(user, trip, pointsEarned, message);
             } else {
                 System.out.println("Booking " + booking.getId() + " is not eligible for points.");
             }
@@ -148,7 +139,7 @@ public class TripServiceImpl implements TripService {
 
     private void sendTripCompletionNotification(User user, Trip trip, BigDecimal pointsEarned, String message) {
         Notification notification = new Notification();
-        notification.setTitle("Hoàn thành chuyến đi");
+        notification.setTitle("THÔNG BÁO HOÀN THÀNH CHUYẾN ĐI");
         notification.setMessage(message);
         notification.setSendDateTime(LocalDateTime.now());
         notification.setRecipientType(RecipientType.INDIVIDUAL);
@@ -162,26 +153,21 @@ public class TripServiceImpl implements TripService {
         userNotification.setUser(user);
         userNotification.setIsRead(false);
         userNotificationRepo.save(userNotification);
-
         System.out.println("Notification sent to user: " + user.getUsername());
     }
-
 
     @Override
     @Transactional
     @CacheEvict(cacheNames = {"trips", "trips_paging"}, allEntries = true)
     public Trip save(Trip trip) {
-
         // Kiểm tra địa điểm đón và trả không được trùng
         if (trip.getPickUpLocation().getId().equals(trip.getDropOffLocation().getId())) {
             throw new InvalidInputException("Pick-up location and drop-off location cannot be the same");
         }
-
         // Kiểm tra điểm đi và điểm đến không trùng
         if (trip.getSource().getId().equals(trip.getDestination().getId())) {
             throw new InvalidInputException("Source and destination cannot be the same");
         }
-
         // Check if the driver has any trip within the last 2 days
         LocalDateTime twoDaysAgo = trip.getDepartureDateTime().minusDays(2);
         System.out.println("Two days ago: " + twoDaysAgo);
@@ -197,7 +183,6 @@ public class TripServiceImpl implements TripService {
             throw new InvalidInputException("Driver <%s> has another trip within 2 days of the new trip."
                     .formatted(trip.getDriver().getFullName()));
         }
-
         // check duplicate Trip
         List<Trip> duplicateTrips = tripRepo.findDuplicateDepartureTimeTrip(
                 trip.getDriver().getId(),
@@ -218,10 +203,8 @@ public class TripServiceImpl implements TripService {
                     );
             throw new ExistingResourceException(duplicateMsg);
         }
-
         return tripRepo.save(trip);
     }
-
 
     @Override
     @Transactional
@@ -253,7 +236,6 @@ public class TripServiceImpl implements TripService {
         return tripRepo.save(existingTrip);
     }
 
-
     private boolean businessConditionsFailed(Trip trip, Trip existingTrip) {
         // Kiểm tra xem tài xế có chuyến đi trong 2 ngày tới không
         LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
@@ -261,7 +243,6 @@ public class TripServiceImpl implements TripService {
                 trip.getDriver().getId(), twoDaysAgo, LocalDateTime.now());
         return !recentTrips.isEmpty();
     }
-
 
     @Override
     @CacheEvict(cacheNames = {"trips", "trips_paging"}, allEntries = true)
@@ -272,9 +253,7 @@ public class TripServiceImpl implements TripService {
         if (!foundTrip.getBookings().isEmpty()) {
             throw new ExistingResourceException("Trip<%d> is in used, can't be deleted".formatted(id));
         }
-
         tripRepo.deleteById(id);
-
         return "Delete Trip<%d> successfully".formatted(id);
     }
 
@@ -316,4 +295,9 @@ public class TripServiceImpl implements TripService {
         }
     }
 
+    private String formatCurrencyVN(BigDecimal amount) {
+        Locale localeVN = new Locale("vi", "VN");
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(localeVN);
+        return currencyFormatter.format(amount);
+    }
 }

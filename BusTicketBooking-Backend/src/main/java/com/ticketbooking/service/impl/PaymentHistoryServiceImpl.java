@@ -13,7 +13,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PaymentHistoryServiceImpl implements PaymentHistoryService {
-
     private final PaymentHistoryRepo paymentHistoryRepo;
 
     @Override
@@ -23,7 +22,6 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
         Collections.sort(histories, Comparator.comparing(PaymentHistory::getStatusChangeDateTime).reversed());
         return histories;
     }
-
     @Override
     public List<PaymentHistory> findAll() {
         return paymentHistoryRepo.findAll();

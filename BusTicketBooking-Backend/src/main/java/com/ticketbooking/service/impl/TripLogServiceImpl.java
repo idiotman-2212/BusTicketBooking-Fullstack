@@ -21,7 +21,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TripLogServiceImpl implements TripLogService {
-
     private final TripLogRepo tripLogRepo;
 
     @Override
@@ -59,7 +58,6 @@ public class TripLogServiceImpl implements TripLogService {
         tripLog.setLogTime(LocalDateTime.now());
         return tripLogRepo.save(tripLog);
     }
-
 
     @Override
     @CacheEvict(cacheNames = "tripLogs_paging", allEntries = true)

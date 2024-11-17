@@ -21,11 +21,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
-
     private final DriverRepo driverRepo;
-
     private final ObjectValidator<Driver> objectValidator;
-
     private final UtilRepo utilRepo;
 
     @Override
@@ -55,13 +52,7 @@ public class DriverServiceImpl implements DriverService {
     @Transactional
     @CacheEvict(cacheNames = {"drivers", "drivers_paging"}, allEntries = true)
     public Driver save(Driver driver) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         objectValidator.validate(driver);
-
         if (!checkDuplicateDriverInfo("ADD", driver.getId(), "email", driver.getEmail())) {
             throw new ExistingResourceException("Email<%s> is already exist".formatted(driver.getEmail()));
         }
@@ -73,7 +64,6 @@ public class DriverServiceImpl implements DriverService {
         if (!checkDuplicateDriverInfo("ADD", driver.getId(), "licenseNumber", driver.getLicenseNumber())) {
             throw new ExistingResourceException("License Number<%s> is already exist".formatted(driver.getLicenseNumber()));
         }
-
         return driverRepo.save(driver);
     }
 
@@ -81,11 +71,6 @@ public class DriverServiceImpl implements DriverService {
     @Transactional
     @CacheEvict(cacheNames = {"drivers", "drivers_paging"}, allEntries = true)
     public Driver update(Driver driver) {
-        /*
-         * Double check
-         * 1. On client-side when user types in form and click submit (validate with YUP)
-         * 2. On server-side when data are sent to server (maybe unnecessary but for sure)
-         */
         objectValidator.validate(driver);
 
         if (!checkDuplicateDriverInfo("EDIT", driver.getId(), "email", driver.getEmail())) {
@@ -99,7 +84,6 @@ public class DriverServiceImpl implements DriverService {
         if (!checkDuplicateDriverInfo("EDIT", driver.getId(), "licenseNumber", driver.getLicenseNumber())) {
             throw new ExistingResourceException("License Number<%s> is already exist".formatted(driver.getLicenseNumber()));
         }
-
         return driverRepo.save(driver);
     }
 
@@ -113,9 +97,7 @@ public class DriverServiceImpl implements DriverService {
         if (!foundDriver.getTrips().isEmpty()) {
             throw new ExistingResourceException("Driver<%d> has run some trips, can't be deleted".formatted(id));
         }
-
         driverRepo.deleteById(id);
-
         return "Delete Driver<%d> successfully".formatted(id);
     }
 

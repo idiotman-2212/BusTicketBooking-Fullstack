@@ -68,6 +68,12 @@ public class NotificationServiceImpl implements NotificationService {
 //        smsService.sendSms(phoneNumber, message);
 //    }
 
+    private String formatCurrencyVN(BigDecimal amount) {
+        Locale localeVN = new Locale("vi", "VN");
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(localeVN);
+        return currencyFormatter.format(amount);
+    }
+
     @Override
     public void sendEmailConfirmation(String email, String source, String destination, String busInfo,
                                       String departureTime, String seatNumbers, BigDecimal totalPayment,
@@ -86,11 +92,9 @@ public class NotificationServiceImpl implements NotificationService {
                         "Trân trọng,\n" +
                         "Đội ngũ hỗ trợ khách hàng.",
                 source, destination, busInfo, departureTime, seatNumbers,
-                pickUpLocation, dropOffLocation,
-                NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(totalPayment)
+                pickUpLocation, dropOffLocation, formatCurrencyVN(totalPayment)
         );
 
-        // Tạo đối tượng EmailMessage
         EmailMessage emailMessage = EmailMessage.builder()
                 .from(env.getProperty("spring.mail.username"))
                 .to(email)
@@ -98,7 +102,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .text(emailContent)
                 .build();
 
-        // Gửi email qua MailService
         mailService.send(emailMessage);
     }
 
@@ -110,7 +113,7 @@ public class NotificationServiceImpl implements NotificationService {
         String body = String.format("Kính gửi Quý khách,\n\nChúng tôi xin thông báo rằng vé của quý khách đã được hoàn tiền thành công. Dưới đây là thông tin chi tiết:\n" +
                         "Nơi đi: %s\nNơi đến: %s\nThông tin xe: %s\nThời gian khởi hành: %s\nSố ghế: %s\nĐịa điểm đón: %s\nĐịa điểm trả: %s\nTổng tiền hoàn lại: %s\n\nCảm ơn Quý khách đã sử dụng dịch vụ của chúng tôi!",
                 source, destination, busInfo, departureTime, seatNumbers,
-                pickUpLocation, dropOffLocation, totalPayment.toString());
+                pickUpLocation, dropOffLocation, formatCurrencyVN(totalPayment));
 
         EmailMessage emailMessage = EmailMessage.builder()
                 .from(env.getProperty("spring.mail.username"))
@@ -144,7 +147,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-
         PageResponse<NotificationDTO> pageResponse = new PageResponse<>();
         pageResponse.setDataList(notificationDTOs);
         pageResponse.setPageCount(pageSlice.getTotalPages());
@@ -158,7 +160,7 @@ public class NotificationServiceImpl implements NotificationService {
     @CacheEvict(cacheNames = {"notifications_paging"}, allEntries = true)
     @Transactional
     public void sendNotification(NotificationRequest request) {
-        String senderUsername = getCurrentUsername();  // Lấy username của người gửi từ session
+        String senderUsername = getCurrentUsername();
         User sender = userRepo.findByUsername(senderUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
 
@@ -193,10 +195,7 @@ public class NotificationServiceImpl implements NotificationService {
                 notification.setRecipientIdentifiers(username);
             }
         }
-
         notificationRepo.save(notification);
-
-        // Liên kết với từng người nhận trong danh sách
         for (User user : recipients) {
             UserNotification userNotification = new UserNotification();
             userNotification.setNotification(notification);
@@ -212,7 +211,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(userNotification -> convertToDTO(userNotification.getNotification()))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     @Transactional
@@ -233,14 +231,11 @@ public class NotificationServiceImpl implements NotificationService {
         if (userNotificationOpt.isEmpty()) {
             throw new ResourceNotFoundException("Notification not found or already deleted");
         }
-
         UserNotification userNotification = userNotificationOpt.get();
         userNotification.setIsDeleted(true);
         userNotificationRepo.save(userNotification);
     }
 
-
-    // Lấy danh sách thông báo của người dùng
     @Override
     @Transactional
     @CacheEvict(cacheNames = {"notifications_paging"}, allEntries = true)
@@ -251,15 +246,12 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     @Transactional
     @CacheEvict(cacheNames = {"notifications_paging"}, allEntries = true)
     public long getUnreadNotificationCount(String username) {
         return userNotificationRepo.countUnreadNotifications(username);
     }
-
-    // Đánh dấu thông báo là đã đọc
     @Override
     @Transactional
     public void markAsRead(Long notificationId, String username) {
@@ -272,8 +264,6 @@ public class NotificationServiceImpl implements NotificationService {
             userNotificationRepo.save(userNotification);
         }
     }
-
-
 
     @Override
     @Transactional
@@ -311,17 +301,13 @@ public class NotificationServiceImpl implements NotificationService {
                 throw new IllegalArgumentException("RecipientIdentifiers must contain exactly one user for INDIVIDUAL type.");
             }
         }
-
         userNotificationRepo.deleteByNotificationId(notification.getId());
-
-        // Cập nhật các UserNotification mới
         for (User user : recipients) {
             UserNotification userNotification = new UserNotification();
             userNotification.setNotification(notification);
             userNotification.setUser(user);
             userNotificationRepo.save(userNotification);
         }
-
         notificationRepo.save(notification);
     }
 
@@ -329,14 +315,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     @CacheEvict(cacheNames = {"notifications_paging"}, allEntries = true)
     public void deleteNotificationById(Long notificationId) {
-        // Tìm thông báo từ cơ sở dữ liệu
         Notification notification = notificationRepo.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id: " + notificationId));
-
-        // Xóa các UserNotification liên quan đến thông báo
         userNotificationRepo.deleteByNotificationId(notification.getId());
-
-        // Xóa chính thông báo
         notificationRepo.delete(notification);
     }
 
@@ -344,10 +325,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     @CacheEvict(cacheNames = {"notifications_paging"}, allEntries = true)
     public void deleteAllNotifications() {
-        // Xóa tất cả UserNotification trước
         userNotificationRepo.deleteAll();
-
-        // Xóa tất cả thông báo trong hệ thống
         notificationRepo.deleteAll();
     }
 
@@ -376,7 +354,4 @@ public class NotificationServiceImpl implements NotificationService {
                 .tripId(notification.getTrip() != null ? notification.getTrip().getId() : null)
                 .build();
     }
-
-
-
 }
