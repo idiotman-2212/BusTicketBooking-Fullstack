@@ -1,12 +1,20 @@
 package com.ticketbooking.controller;
 
 import com.ticketbooking.dto.PageResponse;
+import com.ticketbooking.dto.TripRecommendationDTO;
 import com.ticketbooking.model.Trip;
+import com.ticketbooking.service.TripRecommendationService;
 import com.ticketbooking.service.TripService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,6 +28,7 @@ import java.util.List;
 public class TripController {
 
     private final TripService tripService;
+    private final TripRecommendationService tripRecommendationService;
 
     @GetMapping("/all")
     public List<Trip> getAllTrips() {
@@ -86,4 +95,21 @@ public class TripController {
                 departureDateTimeParsed.minusDays(2).format(formatter),
                 departureDateTimeParsed.format(formatter));
     }
+
+    @GetMapping("/recommend")
+    public ResponseEntity<List<TripRecommendationDTO>> getRecommendedTrips(HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication instanceof UsernamePasswordAuthenticationToken)) {
+            return ResponseEntity.status(401).body(null);
+        }
+
+        String username = authentication.getName();  // Lấy username từ Authentication
+        List<TripRecommendationDTO> recommendations =
+                tripRecommendationService.getRecommendedTrips(username);
+
+        return ResponseEntity.ok(recommendations);
+    }
+
+
 }

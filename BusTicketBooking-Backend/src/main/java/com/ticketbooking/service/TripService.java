@@ -10,20 +10,15 @@ import java.util.List;
 public interface TripService {
 
     Trip findById(Long id);
-
     List<Trip> findAll();
-
     PageResponse<Trip> findAll(Integer page, Integer limit);
-
     Trip save(Trip trip);
-
     Trip update(Trip trip);
-
-    List<Trip> getIncompleteTrips(); // Lấy danh sách các chuyến đi chưa hoàn thành
-    void completeTrip(Long tripId);  // Xử lý hoàn thành chuyến đi
-
+    List<Trip> getIncompleteTrips();
+    void completeTrip(Long tripId);
     String delete(Long id);
-
     List<Trip> findAllBySourceAndDest(Long sourceId, Long destId, String chosenFromDate, String chosenToDate);
     List<Trip> findRecentTripsByDriverId(Long driverId, String fromDateTime, String toDateTime);
+
+
 }

@@ -1,6 +1,7 @@
 package com.ticketbooking.repo;
 
 import com.ticketbooking.model.Trip;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,12 +14,13 @@ import java.util.List;
 public interface TripRepo extends JpaRepository<Trip, Long> {
 
     @Query(value = """
-        select * from trip t 
-        where t.source_id=:sourceId and t.dest_id=:destinationId 
-        and t.departure_date_time BETWEEN :startDate AND concat(:endDate, ' 23:59') 
-        and t.departure_date_time > current_timestamp()
-        """, nativeQuery = true)
-    List<Trip> findAllBySourceIdAndDestinationId(
+     select * from trip t 
+     where t.source_id = :sourceId and t.dest_id = :destinationId 
+     and t.departure_date_time BETWEEN :startDate AND concat(:endDate, ' 23:59') 
+     and t.departure_date_time > current_timestamp()
+     order by t.departure_date_time asc
+     """, nativeQuery = true)
+    List<Trip> findAllBySourceIdAndDestinationIdOrderByDepartureDateTimeAsc(
             @Param("sourceId") Long sourceId,
             @Param("destinationId") Long destinationId,
             @Param("startDate") LocalDate startDate,
@@ -60,7 +62,9 @@ public interface TripRepo extends JpaRepository<Trip, Long> {
             @Param("toDateTime") LocalDateTime toDateTime);
 
     List<Trip> findByCompletedFalse(); // Tìm các chuyến đi chưa hoàn thành
-
     @Query("SELECT COUNT(t) > 0 FROM Trip t WHERE t.pickUpLocation.id = :locationId OR t.dropOffLocation.id = :locationId")
     boolean existsByLocationId(@Param("locationId") Long locationId);
+
+    List<Trip> findBySourceIdAndDestinationIdAndDepartureDateTimeAfterAndCompletedFalseOrderByDepartureDateTimeAsc(
+            Long sourceId, Long destId, LocalDateTime now, Pageable pageable);
 }

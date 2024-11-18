@@ -388,6 +388,13 @@ INSERT INTO `user_permission` VALUES (2,NULL,1,'admin'),(1,NULL,3,'HuyDien'),(59
 UNLOCK TABLES;
 
 select * from booking b;
+select * from trip t ;
 select * from booking_cargo bc ;
 select * from payment_history ph ;
 select * from `user` u ;
+
+select * from trip
+where source_id = 1 and dest_id = 2
+and departure_date_time between '2024-11-06' and '2024-12-30'
+and departure_date_time > current_timestamp()
+order by departure_date_time asc;

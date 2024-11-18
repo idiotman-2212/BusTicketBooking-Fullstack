@@ -58,4 +58,5 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
             @Param("seatNumber") String seatNumber,
             @Param("excludedStatuses") List<PaymentStatus> excludedStatuses);
 
+    List<Booking> findByUserUsernameOrderByBookingDateTimeDesc(String username);
 }

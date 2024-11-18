@@ -261,7 +261,7 @@ public class TripServiceImpl implements TripService {
     public List<Trip> findAllBySourceAndDest(Long sourceId, Long destId, String chosenFromDate, String chosenToDate) {
         LocalDate fromDate = LocalDate.parse(chosenFromDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         LocalDate toDate = LocalDate.parse(chosenToDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return tripRepo.findAllBySourceIdAndDestinationId(sourceId, destId, fromDate, toDate);
+        return tripRepo.findAllBySourceIdAndDestinationIdOrderByDepartureDateTimeAsc(sourceId, destId, fromDate, toDate);
     }
 
     @Override
