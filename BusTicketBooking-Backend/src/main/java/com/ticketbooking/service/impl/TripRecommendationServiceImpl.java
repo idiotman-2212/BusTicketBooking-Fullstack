@@ -57,7 +57,7 @@ public class TripRecommendationServiceImpl implements TripRecommendationService 
         // Find upcoming trips for the most frequent route
         LocalDateTime now = LocalDateTime.now();
         List<Trip> suggestedTrips = tripRepo.findBySourceIdAndDestinationIdAndDepartureDateTimeAfterAndCompletedFalseOrderByDepartureDateTimeAsc(
-                sourceId, destId, now, PageRequest.of(0, 5));
+                sourceId, destId, now, PageRequest.of(0, 2));
 
         // Convert to DTOs
         return suggestedTrips.stream()

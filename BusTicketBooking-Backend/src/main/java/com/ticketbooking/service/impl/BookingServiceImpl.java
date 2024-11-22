@@ -53,18 +53,21 @@ public class BookingServiceImpl implements BookingService {
         User foundUser = userRepo.findByUsername(username).get();
         return bookingRepo.findAllByUser(foundUser);
     }
+
     @Override
     @Transactional
     public Booking findById(Long id) {
         return bookingRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found Booking<%d>".formatted(id)));
     }
+
     @Override
     @Transactional
     public Booking getBookingWithCargos(Long bookingId) {
         return bookingRepo.findByIdWithCargos(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
     }
+
     @Override
     @Cacheable(cacheNames = {"bookings"})
     public List<Booking> findAll() {
@@ -81,6 +84,7 @@ public class BookingServiceImpl implements BookingService {
         pageResponse.setTotalElements(pageSlice.getTotalElements());
         return pageResponse;
     }
+
     //đặt vé site1 khách đã đăng nhập vào hệ thống
     @Override
     @Transactional
@@ -330,12 +334,38 @@ public class BookingServiceImpl implements BookingService {
             return booking;
         }
 // Chuyển từ CANCEL sang REFUNDED chỉ khi thanh toán bằng thẻ (CARD)
-        if (oldPaymentStatus == PaymentStatus.CANCEL && newPaymentStatus == PaymentStatus.REFUNDED) {
+        if (oldPaymentStatus == PaymentStatus.CANCEL && newPaymentStatus == PaymentStatus.REFUND_PENDING) {
             if (foundBooking.getPaymentMethod() != PaymentMethod.CARD) {
-                throw new BookingException("Only bookings paid by CARD can be refunded.");
+                throw new BookingException("Only bookings paid by CARD can be moved to REFUND_PENDING.");
             }
-            System.out.println("send notification reffunded");
+            System.out.println("send notification refund pending");
+            foundBooking.setPaymentStatus(newPaymentStatus);
+            bookingRepo.save(foundBooking);
+
             sendRefundConfirmationEmail(foundBooking);
+            paymentHistoryRepo.save(PaymentHistory
+                    .builder()
+                    .oldStatus(oldPaymentStatus)
+                    .newStatus(newPaymentStatus)
+                    .statusChangeDateTime(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")))
+                    .booking(booking)
+                    .build());
+            return foundBooking;
+        }
+        // Chuyển từ REFUND_PENDING sang REFUNDED
+        if (oldPaymentStatus == PaymentStatus.REFUND_PENDING && newPaymentStatus == PaymentStatus.REFUNDED) {
+            foundBooking.setPaymentStatus(newPaymentStatus);
+            bookingRepo.save(foundBooking);
+
+            paymentHistoryRepo.save(PaymentHistory.builder()
+                    .booking(foundBooking)
+                    .oldStatus(PaymentStatus.REFUND_PENDING)
+                    .newStatus(PaymentStatus.REFUNDED)
+                    .statusChangeDateTime(LocalDateTime.now())
+                    .build());
+
+            sendRefundCompletedEmail(foundBooking);
+            return foundBooking;
         }
         // Chuyển từ UNPAID sang PAID khi thanh toán tại quầy
         if (oldPaymentStatus == PaymentStatus.UNPAID && newPaymentStatus == PaymentStatus.PAID) {
@@ -361,6 +391,28 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
+    public Booking confirmRefund(Long bookingId) {
+        Booking booking = findById(bookingId);
+
+        if (!booking.getPaymentStatus().equals(PaymentStatus.REFUND_PENDING)) {
+            throw new BookingException("Invalid booking status for refund confirmation.");
+        }
+        booking.setPaymentStatus(PaymentStatus.REFUNDED);
+        bookingRepo.save(booking);
+
+        paymentHistoryRepo.save(PaymentHistory.builder()
+                .booking(booking)
+                .oldStatus(PaymentStatus.REFUND_PENDING)
+                .newStatus(PaymentStatus.REFUNDED)
+                .statusChangeDateTime(LocalDateTime.now())
+                .build());
+
+        sendRefundCompletedEmail(booking);
+        return booking;
+    }
+
+    @Override
     @CacheEvict(cacheNames = {"bookings", "bookings_paging"}, allEntries = true)
     @Transactional
     public String delete(Long id) {
@@ -374,9 +426,11 @@ public class BookingServiceImpl implements BookingService {
         if (currentTime.isAfter(departureTime.minusHours(24))) {
             throw new BookingException("Booking <%d> cannot be canceled within 24 hours before departure.".formatted(id));
         }
+        if (oldPaymentStatus == PaymentStatus.REFUND_PENDING ) {
+            throw new BookingException("This Booking has proccessing status");
+        }
         return cancelBooking(foundBooking, oldPaymentStatus, currentTime);
     }
-
     private String cancelBooking(Booking booking, PaymentStatus oldStatus, LocalDateTime currentTime) {
         booking.setPaymentStatus(PaymentStatus.CANCEL);
         bookingRepo.save(booking);
@@ -430,12 +484,10 @@ public class BookingServiceImpl implements BookingService {
         }
         return allSeats;
     }
-
     // Hàm tạo danh sách ghế dựa trên sức chứa
     private List<String> generateSeats(int capacity) {
         List<String> seats = new ArrayList<>();
         int halfCapacity = (int) Math.ceil(capacity / 2.0);
-
         for (int i = 1; i <= halfCapacity; i++) {
             seats.add("A" + i);
         }
@@ -445,7 +497,7 @@ public class BookingServiceImpl implements BookingService {
         return seats;
     }
 
-    private void sendRefundConfirmationEmail(Booking booking) {
+    private void sendRefundCompletedEmail(Booking booking) {
         String source = booking.getTrip().getSource().getName();
         String destination = booking.getTrip().getDestination().getName();
         String busInfo = booking.getTrip().getCoach().getName();
@@ -455,7 +507,7 @@ public class BookingServiceImpl implements BookingService {
         String pickUpLocation = booking.getTrip().getPickUpLocation().getName();
         String dropOffLocation = booking.getTrip().getDropOffLocation().getName();
 
-        notificationService.sendRefundEmail(
+        notificationService.sendRefundSuccessNotification(
                 booking.getEmail(),
                 source,
                 destination,
@@ -467,4 +519,8 @@ public class BookingServiceImpl implements BookingService {
                 dropOffLocation
         );
     }
+    private void sendRefundConfirmationEmail(Booking booking) {
+        notificationService.sendRefundConfirmationNotification(booking);
+    }
+
 }

@@ -3,6 +3,7 @@ package com.ticketbooking.service;
 import com.ticketbooking.dto.NotificationDTO;
 import com.ticketbooking.dto.NotificationRequest;
 import com.ticketbooking.dto.PageResponse;
+import com.ticketbooking.model.Booking;
 import com.ticketbooking.model.Notification;
 import com.ticketbooking.model.UserNotification;
 
@@ -16,10 +17,11 @@ public interface NotificationService {
                                String departureTime, String seatNumbers, BigDecimal totalPayment,
                                String pickUpLocation, String dropOffLocation);
 
-    void sendRefundEmail(String email, String source, String destination, String busInfo,
+    void sendRefundSuccessNotification(String email, String source, String destination, String busInfo,
                          String departureTime, String seatNumbers, BigDecimal totalPayment,
                          String pickUpLocation, String dropOffLocation);
 
+    void sendRefundConfirmationNotification(Booking booking);
     List<Notification> findAll();
 
     Notification findById(Long id);

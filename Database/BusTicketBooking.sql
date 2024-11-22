@@ -387,14 +387,18 @@ LOCK TABLES `user_permission` WRITE;
 INSERT INTO `user_permission` VALUES (2,NULL,1,'admin'),(1,NULL,3,'HuyDien'),(59,NULL,3,'johndoe'),(60,NULL,3,'LeHaThanh'),(25,NULL,2,'nguyenvana'),(34,'COACHES',4,'nguyenvana'),(50,'DASHBOARD',4,'nguyenvana'),(30,'DRIVERS',4,'nguyenvana'),(46,'REPORT',4,'nguyenvana'),(42,'TICKETS',4,'nguyenvana'),(54,'USERS',4,'nguyenvana'),(35,'COACHES',5,'nguyenvana'),(51,'DASHBOARD',5,'nguyenvana'),(31,'DRIVERS',5,'nguyenvana'),(47,'REPORT',5,'nguyenvana'),(43,'TICKETS',5,'nguyenvana'),(62,'TRIPS',5,'nguyenvana'),(55,'USERS',5,'nguyenvana'),(36,'COACHES',6,'nguyenvana'),(52,'DASHBOARD',6,'nguyenvana'),(32,'DRIVERS',6,'nguyenvana'),(48,'REPORT',6,'nguyenvana'),(44,'TICKETS',6,'nguyenvana'),(63,'TRIPS',6,'nguyenvana'),(56,'USERS',6,'nguyenvana'),(37,'COACHES',7,'nguyenvana'),(53,'DASHBOARD',7,'nguyenvana'),(33,'DRIVERS',7,'nguyenvana'),(49,'REPORT',7,'nguyenvana'),(45,'TICKETS',7,'nguyenvana'),(57,'USERS',7,'nguyenvana'),(58,NULL,2,'nguyenvanb'),(61,NULL,2,'system'),(3,NULL,3,'user1'),(13,NULL,3,'user10'),(14,NULL,3,'user11'),(15,NULL,3,'user12'),(16,NULL,3,'user13'),(17,NULL,3,'user14'),(18,NULL,3,'user15'),(19,NULL,3,'user16'),(20,NULL,3,'user17'),(21,NULL,3,'user18'),(22,NULL,3,'user19'),(5,NULL,3,'user2'),(23,NULL,3,'user20'),(6,NULL,3,'user3'),(7,NULL,3,'user4'),(8,NULL,3,'user5'),(9,NULL,3,'user6'),(10,NULL,3,'user7'),(11,NULL,3,'user8'),(12,NULL,3,'user9');
 UNLOCK TABLES;
 
+select * from `user` u ;
+select * from token t ;
 select * from booking b;
+select * from payment_history ph ;
 select * from trip t ;
 select * from booking_cargo bc ;
-select * from payment_history ph ;
 select * from `user` u ;
 
-select * from trip
-where source_id = 1 and dest_id = 2
-and departure_date_time between '2024-11-06' and '2024-12-30'
-and departure_date_time > current_timestamp()
-order by departure_date_time asc;
+SELECT * 
+FROM trip
+WHERE source_id = 1 
+  AND dest_id = 2
+  AND departure_date_time BETWEEN '2024-11-01' AND '2024-12-30'
+  AND departure_date_time > CURRENT_TIMESTAMP()
+ORDER BY departure_date_time ASC;

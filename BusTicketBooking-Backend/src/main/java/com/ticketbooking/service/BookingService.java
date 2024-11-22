@@ -28,6 +28,7 @@ public interface BookingService {
     Booking update(Booking booking);
 
     String delete(Long id);
+    Booking confirmRefund(Long bookingId);
 
     List<Booking> getAllBookingFromTripAndDate(Long tripId);
 

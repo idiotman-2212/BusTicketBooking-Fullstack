@@ -98,4 +98,14 @@ public class BookingController {
         List<Booking> bookings = bookingService.findBookingsByPhone(phone);
         return ResponseEntity.ok(bookings);
     }
+
+    @PostMapping("/refund/confirm/{bookingId}")
+    public ResponseEntity<?> confirmRefund(@PathVariable Long bookingId) {
+        try {
+            Booking updatedBooking = bookingService.confirmRefund(bookingId);
+            return ResponseEntity.ok("Refund confirmed successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
