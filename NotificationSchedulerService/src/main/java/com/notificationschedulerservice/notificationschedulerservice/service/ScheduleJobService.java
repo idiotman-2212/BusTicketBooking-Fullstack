@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +25,7 @@ public class ScheduleJobService{
 
     private final BookingRepo bookingRepo;
     private final NotificationRepo notificationRepo;
+    private final NotificationService notificationService;
     private final UserNotificationRepo userNotificationRepo;
 //    private final SmsService smsService;
     private final MailService mailService;
@@ -86,6 +89,44 @@ public class ScheduleJobService{
         }
     }
 
+    //4. Chuyển đổi từ refund_pending sang refunded
+    @Transactional
+    @Scheduled(cron = "0 */15 * * * ?") // Chạy mỗi 15 phút
+    public void autoConfirmRefunds() {
+        // Tính toán thời điểm 24 giờ trước
+        LocalDateTime thresholdTime = LocalDateTime.now().minusHours(24);
+
+        // Lấy danh sách các bản ghi REFUND_PENDING trước 24 giờ
+        List<PaymentHistory> refundHistories = paymentHistoryRepo.findPendingRefundsBefore(thresholdTime);
+
+        for (PaymentHistory history : refundHistories) {
+            Booking booking = history.getBooking();
+
+            // Kiểm tra trạng thái hiện tại của booking
+            if (booking.getPaymentStatus() == PaymentStatus.REFUND_PENDING) {
+                // Cập nhật trạng thái sang REFUNDED
+                booking.setPaymentStatus(PaymentStatus.REFUNDED);
+                bookingRepo.save(booking);
+
+                // Thêm bản ghi lịch sử thanh toán
+                paymentHistoryRepo.save(PaymentHistory.builder()
+                        .booking(booking)
+                        .oldStatus(PaymentStatus.REFUND_PENDING)
+                        .newStatus(PaymentStatus.REFUNDED)
+                        .statusChangeDateTime(LocalDateTime.now())
+                        .build());
+
+                // Gửi email thông báo hoàn tiền
+                sendRefundCompletedEmail(booking);
+
+                System.out.println("Auto-refunded booking ID: " + booking.getId());
+            } else {
+                // Ghi log trạng thái không hợp lệ
+                System.out.println("Booking ID " + booking.getId() + " is not in REFUND_PENDING state. Skipping...");
+            }
+        }
+    }
+
     // Phương thức chung để gửi thông báo, SMS và email
     private void sendNotificationAndMessages(Booking booking, String title, String message) {
         if (booking.getUser() == null) {
@@ -142,6 +183,29 @@ public class ScheduleJobService{
                 emailContent));
 
  */
+    }
+
+    private void sendRefundCompletedEmail(Booking booking) {
+        String source = booking.getTrip().getSource().getName();
+        String destination = booking.getTrip().getDestination().getName();
+        String busInfo = booking.getTrip().getCoach().getName();
+        String departureTime = booking.getTrip().getDepartureDateTime().toString();
+        String seatNumbers = booking.getSeatNumber();
+        BigDecimal totalPayment = booking.getTotalPayment();
+        String pickUpLocation = booking.getTrip().getPickUpLocation().getName();
+        String dropOffLocation = booking.getTrip().getDropOffLocation().getName();
+
+        notificationService.sendRefundSuccessNotification(
+                booking.getEmail(),
+                source,
+                destination,
+                busInfo,
+                departureTime,
+                seatNumbers,
+                totalPayment,
+                pickUpLocation,
+                dropOffLocation
+        );
     }
 
 }

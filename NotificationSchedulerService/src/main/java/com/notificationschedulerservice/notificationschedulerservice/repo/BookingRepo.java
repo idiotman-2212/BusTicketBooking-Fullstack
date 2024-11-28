@@ -21,4 +21,5 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
     List<Booking> findUnpaidBookingsBefore(@Param("threshold") LocalDateTime threshold);
 
     List<Booking> findAllByTripId(Long tripId);
+
 }

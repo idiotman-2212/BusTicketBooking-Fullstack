@@ -1,6 +1,7 @@
 package com.ticketbooking.repo;
 
 import com.ticketbooking.model.Trip;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -67,4 +68,6 @@ public interface TripRepo extends JpaRepository<Trip, Long> {
 
     List<Trip> findBySourceIdAndDestinationIdAndDepartureDateTimeAfterAndCompletedFalseOrderByDepartureDateTimeAsc(
             Long sourceId, Long destId, LocalDateTime now, Pageable pageable);
+
+    List<Trip> findByDepartureDateTimeAfterAndCompletedFalseOrderByDepartureDateTimeAsc(LocalDateTime now, PageRequest of);
 }

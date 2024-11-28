@@ -402,3 +402,10 @@ WHERE source_id = 1
   AND departure_date_time BETWEEN '2024-11-01' AND '2024-12-30'
   AND departure_date_time > CURRENT_TIMESTAMP()
 ORDER BY departure_date_time ASC;
+
+SELECT ph.*
+FROM payment_history ph
+WHERE ph.new_status = 'REFUND_PENDING' 
+  AND ph.status_change_date_time < :thresholdTime;
+
+

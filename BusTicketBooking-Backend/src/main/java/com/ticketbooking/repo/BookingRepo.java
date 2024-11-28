@@ -23,6 +23,7 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
         where b.trip.id=:tripId 
         and b.paymentStatus <> 'CANCEL'
         and b.paymentStatus <> 'REFUNDED'
+        and b.paymentStatus <> 'REFUND_PENDING'
         """)
     List<Booking> getAllBookingFromTripAndDate(@Param("tripId") Long tripId);
 

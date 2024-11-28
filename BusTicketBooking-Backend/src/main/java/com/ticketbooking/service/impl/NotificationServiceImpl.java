@@ -110,7 +110,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendRefundSuccessNotification(String email, String source, String destination, String busInfo,
                                 String departureTime, String seatNumbers, BigDecimal totalPayment,
                                 String pickUpLocation, String dropOffLocation) {
-        String subject = "Hoàn tiền vé đặt";
+        String subject = "Hoàn tiền vé đặt thành công";
         String body = String.format("Kính gửi Quý khách,\n\nChúng tôi xin thông báo rằng vé của quý khách đã được hoàn tiền thành công. Dưới đây là thông tin chi tiết:\n" +
                         "Nơi đi: %s\nNơi đến: %s\nThông tin xe: %s\nThời gian khởi hành: %s\nSố ghế: %s\nĐịa điểm đón: %s\nĐịa điểm trả: %s\nTổng tiền hoàn lại: %s\n\nCảm ơn Quý khách đã sử dụng dịch vụ của chúng tôi!",
                 source, destination, busInfo, departureTime, seatNumbers,
@@ -133,6 +133,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendRefundConfirmationNotification(Booking booking) {
         String confirmationLink = "http://localhost:3000/refund/confirm/" + booking.getId();
+        //String confirmationLink = "http://chauhuydien.id.vn/refund/confirm/" + booking.getId();
         String emailContent = String.format(
                 "Kính chào %s,\n\n" +
                         "Bạn đã yêu cầu hoàn tiền cho vé đặt của mình. Vui lòng nhấn vào liên kết dưới đây để xác nhận hoàn tiền:\n\n%s\n\n" +

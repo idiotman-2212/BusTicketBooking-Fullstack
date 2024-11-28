@@ -101,15 +101,14 @@ public class TripController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !(authentication instanceof UsernamePasswordAuthenticationToken)) {
-            return ResponseEntity.status(401).body(null);
+            List<TripRecommendationDTO> recommendations = tripRecommendationService.getAvailableTrips();
+            return ResponseEntity.ok(recommendations);
         }
 
-        String username = authentication.getName();  // Lấy username từ Authentication
-        List<TripRecommendationDTO> recommendations =
-                tripRecommendationService.getRecommendedTrips(username);
+        String username = authentication.getName();
+        List<TripRecommendationDTO> recommendations = tripRecommendationService.getRecommendedTrips(username);
 
         return ResponseEntity.ok(recommendations);
     }
-
 
 }

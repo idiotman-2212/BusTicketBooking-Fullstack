@@ -93,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
         String[] selectSeats = bookingRequest.getSeatNumber();
         BigDecimal originalTotalPayment = bookingRequest.getTotalPayment();
         BigDecimal pointsUsed = bookingRequest.getPointsUsed();
-        List<PaymentStatus> excludedStatuses = Arrays.asList(PaymentStatus.CANCEL, PaymentStatus.REFUNDED);
+        List<PaymentStatus> excludedStatuses = Arrays.asList(PaymentStatus.CANCEL, PaymentStatus.REFUNDED, PaymentStatus.REFUND_PENDING);
 
         User user = userRepo.findByUsername(bookingRequest.getUser().getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -232,7 +232,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingException("Dữ liệu không hợp lệ.");
         }
         String[] selectSeats = bookingRequest.getSeatNumber();
-        List<PaymentStatus> excludedStatuses = Arrays.asList(PaymentStatus.CANCEL, PaymentStatus.REFUNDED);
+        List<PaymentStatus> excludedStatuses = Arrays.asList(PaymentStatus.CANCEL, PaymentStatus.REFUNDED, PaymentStatus.REFUND_PENDING);
         // Calculate total cargo price
         BigDecimal totalCargoPrice = BigDecimal.ZERO;
         Map<Long, BigDecimal> cargoPrices = new HashMap<>();
@@ -333,7 +333,7 @@ public class BookingServiceImpl implements BookingService {
         if (oldPaymentStatus.equals(newPaymentStatus)) {
             return booking;
         }
-// Chuyển từ CANCEL sang REFUNDED chỉ khi thanh toán bằng thẻ (CARD)
+// Chuyển từ CANCEL sang REFUND_PENDING chỉ khi thanh toán bằng thẻ (CARD)
         if (oldPaymentStatus == PaymentStatus.CANCEL && newPaymentStatus == PaymentStatus.REFUND_PENDING) {
             if (foundBooking.getPaymentMethod() != PaymentMethod.CARD) {
                 throw new BookingException("Only bookings paid by CARD can be moved to REFUND_PENDING.");
@@ -350,6 +350,8 @@ public class BookingServiceImpl implements BookingService {
                     .statusChangeDateTime(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")))
                     .booking(booking)
                     .build());
+
+            releaseSeat(foundBooking.getSeatNumber());
             return foundBooking;
         }
         // Chuyển từ REFUND_PENDING sang REFUNDED
@@ -472,11 +474,8 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = bookingRepo.findAllByTripId(tripId);
         for (Booking booking : bookings) {
             String seatNumber = booking.getSeatNumber();
-//            if (seatNumber != null && allSeats.contains(seatNumber)
-//                    && booking.getPaymentStatus() != PaymentStatus.REFUNDED) {
-//                allSeats.remove(seatNumber);
-//            }
-            // Chỉ loại bỏ ghế khi trạng thái thanh toán là PAID
+            // Loại bỏ ghế nếu trạng thái là PAID
+            // Bỏ qua REFUND_PENDING để giữ ghế trống
             if (seatNumber != null && allSeats.contains(seatNumber)
                     && booking.getPaymentStatus() == PaymentStatus.PAID) {
                 allSeats.remove(seatNumber);
@@ -484,6 +483,7 @@ public class BookingServiceImpl implements BookingService {
         }
         return allSeats;
     }
+
     // Hàm tạo danh sách ghế dựa trên sức chứa
     private List<String> generateSeats(int capacity) {
         List<String> seats = new ArrayList<>();

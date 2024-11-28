@@ -1,5 +1,4 @@
 
-
 DROP TABLE IF EXISTS `booking`;
 CREATE TABLE `booking` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -10,9 +9,8 @@ CREATE TABLE `booking` (
   `email` varchar(255) DEFAULT NULL,
   `payment_date_time` datetime(6) DEFAULT NULL,
   `payment_method` enum('CARD','CASH') DEFAULT NULL,
-  `payment_status` enum('CANCEL','COMPLETED','PAID','REFUNDED','UNPAID') DEFAULT NULL,
+  `payment_status` enum('CANCEL','COMPLETED','PAID','REFUNDED','REFUND_PENDING','UNPAID') DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
-  `pick_up_address` varchar(255) DEFAULT NULL,
   `points_earned` decimal(38,2) NOT NULL DEFAULT '0.00',
   `points_used` decimal(38,2) DEFAULT '0.00',
   `seat_number` varchar(255) DEFAULT NULL,
@@ -24,7 +22,7 @@ CREATE TABLE `booking` (
   KEY `FKrjob56yal18kk1mvwj2d2elki` (`username`),
   CONSTRAINT `FKkp5ujmgvd2pmsehwpu2vyjkwb` FOREIGN KEY (`trip_id`) REFERENCES `trip` (`id`),
   CONSTRAINT `FKrjob56yal18kk1mvwj2d2elki` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `booking_cargo`;
@@ -39,7 +37,7 @@ CREATE TABLE `booking_cargo` (
   KEY `FK761jdsr9i6tf9gxy5gkq3aoki` (`cargo_id`),
   CONSTRAINT `FK6ifbn2w0dpwsorxorvm2o3d95` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`),
   CONSTRAINT `FK761jdsr9i6tf9gxy5gkq3aoki` FOREIGN KEY (`cargo_id`) REFERENCES `cargo` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `cargo`;
@@ -47,11 +45,9 @@ CREATE TABLE `cargo` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `base_price` decimal(38,2) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
-  `is_deleted` bit(1) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
-  `active` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `coach`;
@@ -126,7 +122,7 @@ CREATE TABLE `loyalty_transaction` (
   KEY `FK1mqcqiujk08yan1doqjy2xfib` (`username`),
   CONSTRAINT `FK1mqcqiujk08yan1doqjy2xfib` FOREIGN KEY (`username`) REFERENCES `user` (`username`),
   CONSTRAINT `FK1tauigo64nwpichfxp66qhjp2` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `notification`;
@@ -144,20 +140,20 @@ CREATE TABLE `notification` (
   KEY `FK5qb7kdu7bql8f6v75rrvi1i67` (`trip_id`),
   CONSTRAINT `FK5qb7kdu7bql8f6v75rrvi1i67` FOREIGN KEY (`trip_id`) REFERENCES `trip` (`id`),
   CONSTRAINT `FKf6kkv92c81rhgis7n21br0946` FOREIGN KEY (`sender_username`) REFERENCES `user` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `payment_history`;
 CREATE TABLE `payment_history` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `new_status` enum('CANCEL','COMPLETED','PAID','REFUNDED','UNPAID') DEFAULT NULL,
-  `old_status` enum('CANCEL','COMPLETED','PAID','REFUNDED','UNPAID') DEFAULT NULL,
+  `new_status` enum('CANCEL','COMPLETED','PAID','REFUNDED','REFUND_PENDING','UNPAID') DEFAULT NULL,
+  `old_status` enum('CANCEL','COMPLETED','PAID','REFUNDED','REFUND_PENDING','UNPAID') DEFAULT NULL,
   `status_change_date_time` datetime(6) DEFAULT NULL,
   `booking_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK78c8n1i1pc83oleh4xdbm46d5` (`booking_id`),
   CONSTRAINT `FK78c8n1i1pc83oleh4xdbm46d5` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `province`;
@@ -184,7 +180,7 @@ CREATE TABLE `review` (
   KEY `FK117o6riye2xefmyeaanbvdx1i` (`username`),
   CONSTRAINT `FK117o6riye2xefmyeaanbvdx1i` FOREIGN KEY (`username`) REFERENCES `user` (`username`),
   CONSTRAINT `FKsdujhwxnw678xtqnvqre9gl3h` FOREIGN KEY (`trip_id`) REFERENCES `trip` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `role`;
@@ -208,7 +204,7 @@ CREATE TABLE `token` (
   PRIMARY KEY (`id`),
   KEY `FKofh3vp2yx7uo49ane1s4dh6g3` (`username`),
   CONSTRAINT `FKofh3vp2yx7uo49ane1s4dh6g3` FOREIGN KEY (`username`) REFERENCES `user` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `trip`;
@@ -240,7 +236,7 @@ CREATE TABLE `trip` (
   CONSTRAINT `FKrpos7pom0982eu50idqqapj5e` FOREIGN KEY (`drop_off_location_id`) REFERENCES `location` (`id`),
   CONSTRAINT `FKs3c683ds4ckyessv3l8optnmb` FOREIGN KEY (`discount_id`) REFERENCES `discount` (`id`),
   CONSTRAINT `FKxq0qrdn0xmupsnq4mlplprke` FOREIGN KEY (`coach_id`) REFERENCES `coach` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `trip_log`;
@@ -292,7 +288,7 @@ CREATE TABLE `user_notification` (
   KEY `FK53pjy9iwmuvp3t5ayl1muviso` (`username`),
   CONSTRAINT `FK53pjy9iwmuvp3t5ayl1muviso` FOREIGN KEY (`username`) REFERENCES `user` (`username`),
   CONSTRAINT `FKi5naecliicmigrk01qx5me5sp` FOREIGN KEY (`notification_id`) REFERENCES `notification` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `user_permission`;
@@ -306,4 +302,5 @@ CREATE TABLE `user_permission` (
   KEY `FKhgr5k8iik7jdokqjdeg8nkwm5` (`role_id`),
   CONSTRAINT `FK37krwnqotjma6n9hrjkdnj60n` FOREIGN KEY (`username`) REFERENCES `user` (`username`),
   CONSTRAINT `FKhgr5k8iik7jdokqjdeg8nkwm5` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+

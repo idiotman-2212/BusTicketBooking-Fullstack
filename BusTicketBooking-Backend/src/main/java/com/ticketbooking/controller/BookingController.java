@@ -99,7 +99,7 @@ public class BookingController {
         return ResponseEntity.ok(bookings);
     }
 
-    @PostMapping("/refund/confirm/{bookingId}")
+    @PostMapping("/refund /confirm/{bookingId}")
     public ResponseEntity<?> confirmRefund(@PathVariable Long bookingId) {
         try {
             Booking updatedBooking = bookingService.confirmRefund(bookingId);
