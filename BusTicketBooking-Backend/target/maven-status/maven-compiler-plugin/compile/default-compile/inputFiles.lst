@@ -15,6 +15,7 @@ C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\mai
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\exception\BookingException.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\model\enumType\LogType.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\controller\CargoController.java
+C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\dto\TripRecommendationDTO.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\dto\WeekRevenueDto.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\CoachService.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\model\Coach.java
@@ -52,6 +53,7 @@ C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\mai
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\controller\UserController.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\config\WebSocketConfig.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\impl\DriverServiceImpl.java
+C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\TripRecommendationService.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\model\enumType\RoleCode.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\TripLogService.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\exception\ObjectNotValidException.java
@@ -130,6 +132,7 @@ C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\mai
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\model\TripLog.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\dto\YearRevenueDto.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\repo\LoyaltyTransactionRepo.java
+C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\impl\TripRecommendationServiceImpl.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\CargoService.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\controller\ReviewController.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\dto\ReportResponse.java

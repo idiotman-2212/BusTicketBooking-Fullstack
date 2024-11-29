@@ -23,6 +23,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -129,6 +130,7 @@ public class NotificationServiceImpl implements NotificationService {
             System.err.println("Failed to send refund email: " + e.getMessage());
         }
     }
+
 
     @Override
     public void sendRefundConfirmationNotification(Booking booking) {

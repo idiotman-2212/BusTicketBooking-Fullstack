@@ -5,6 +5,7 @@ com\ticketbooking\controller\PaymentHistoryController.class
 com\ticketbooking\model\Role.class
 com\ticketbooking\controller\LoyaltyPointsController.class
 com\ticketbooking\model\BookingCargo$BookingCargoBuilder.class
+com\ticketbooking\service\TripRecommendationService.class
 com\ticketbooking\model\Review$ReviewBuilder.class
 com\ticketbooking\model\BookingCargo.class
 com\ticketbooking\dto\ForgotRequest.class
@@ -25,6 +26,7 @@ com\ticketbooking\repo\UserNotificationRepo.class
 com\ticketbooking\service\impl\AuthenticationServiceImpl.class
 com\ticketbooking\dto\PageResponse.class
 com\ticketbooking\model\enumType\TransactionType.class
+com\ticketbooking\dto\TripRecommendationDTO.class
 com\ticketbooking\model\Token$TokenBuilder.class
 com\ticketbooking\model\Province$ProvinceBuilder.class
 com\ticketbooking\service\ReportService.class
@@ -101,6 +103,7 @@ com\ticketbooking\service\impl\LocationServiceImpl.class
 com\ticketbooking\service\ProvinceService.class
 com\ticketbooking\service\BookingService.class
 com\ticketbooking\service\impl\RoleServiceImpl.class
+com\ticketbooking\service\impl\TripRecommendationServiceImpl.class
 com\ticketbooking\controller\NotificationController.class
 com\ticketbooking\exception\ApiErrorResponse.class
 com\ticketbooking\service\UserService.class

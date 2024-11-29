@@ -393,7 +393,9 @@ select * from booking b;
 select * from payment_history ph ;
 select * from trip t ;
 select * from booking_cargo bc ;
-select * from `user` u ;
+select * from notification n ;
+select * from user_notification un ;
+select * from review r ;
 
 SELECT * 
 FROM trip

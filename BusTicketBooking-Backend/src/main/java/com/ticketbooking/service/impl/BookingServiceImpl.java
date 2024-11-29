@@ -17,9 +17,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,7 +44,7 @@ public class BookingServiceImpl implements BookingService {
     private final LoyaltyTransactionRepo loyaltyTransactionRepo;
     private final NotificationService notificationService;
     private final CargoRepo cargoRepo;
-    private final BookingCargoRepo bookingCargoRepo;
+
 
     @Override
     @Cacheable(cacheNames = {"bookings"}, key = "#phone")
@@ -366,7 +370,7 @@ public class BookingServiceImpl implements BookingService {
                     .statusChangeDateTime(LocalDateTime.now())
                     .build());
 
-            sendRefundCompletedEmail(foundBooking);
+            //sendRefundCompletedEmail(foundBooking);
             return foundBooking;
         }
         // Chuyển từ UNPAID sang PAID khi thanh toán tại quầy
@@ -409,8 +413,12 @@ public class BookingServiceImpl implements BookingService {
                 .newStatus(PaymentStatus.REFUNDED)
                 .statusChangeDateTime(LocalDateTime.now())
                 .build());
-
-        sendRefundCompletedEmail(booking);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                sendRefundCompletedEmail(booking);
+            }
+        });
         return booking;
     }
 
