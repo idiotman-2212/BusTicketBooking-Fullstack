@@ -144,7 +144,7 @@ Truy cập ứng dụng | Access the application:
 - Kiểm tra kết nối database trước khi chạy ứng dụng
 - Cập nhật các thông số bảo mật trong môi trường production
 
-## 📝 Triển khai hệ thống | Deploy
+## 🚀 Triển khai hệ thống | Deploy
 
 - https://bus-ticket-booking-customer-six.vercel.app/
 - https://bus-ticket-booking-admin-zx3p.vercel.app/dashboard
