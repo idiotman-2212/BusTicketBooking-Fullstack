@@ -146,7 +146,28 @@ Truy cập ứng dụng | Access the application:
 
 ## 🚀 Triển khai hệ thống | Deploy
 
+### Customer Site
 - https://bus-ticket-booking-customer-six.vercel.app/
+
+### Admin Site
 - https://bus-ticket-booking-admin-zx3p.vercel.app/dashboard
+
+
+## 📸 Demo giao diện | Screenshots of the Interface
+1. Trang chủ khách hàng | Customer Homepage
+![image (8)](https://github.com/user-attachments/assets/2c1094b8-92e3-429d-b957-3e3cbddea740)
+
+2. Đặt vé xe | Ticket Booking Page
+![image (9)](https://github.com/user-attachments/assets/5c627e46-d295-4c6c-a4d9-c07453360d8c)
+![image (10)](https://github.com/user-attachments/assets/3f6e7f86-995f-4954-97fc-b915c3517242)
+![image (11)](https://github.com/user-attachments/assets/2da06ee6-92f0-4ab9-99a8-dd6e10ffd20d)
+![image (12)](https://github.com/user-attachments/assets/16672a1e-5447-4049-84ac-a2d32de13535)
+
+3. Quản lý vé đặt | Admin Ticket Management
+![image (4)](https://github.com/user-attachments/assets/a9443eef-1156-4e6d-9749-44fb92d703fd)
+
+4. Báo cáo thống kê | Reports and Analytics
+![image (3)](https://github.com/user-attachments/assets/0b9e7532-4fc4-4329-97d7-b013cff33712)
+
 ---
 © 2024 Bus Ticket Booking System
