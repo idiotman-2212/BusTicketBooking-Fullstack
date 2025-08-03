@@ -134,8 +134,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendRefundConfirmationNotification(Booking booking) {
-        String confirmationLink = "http://localhost:3000/refund/confirm/" + booking.getId();
-        //String confirmationLink = "http://chauhuydien.id.vn/refund/confirm/" + booking.getId();
+        //String confirmationLink = "http://localhost:3000/refund/confirm/" + booking.getId();
+        String confirmationLink = env.getProperty("confirmation.link.url") + booking.getId();
+        System.out.println("Confirmation Link: " + confirmationLink);
         String emailContent = String.format(
                 "Kính chào %s,\n\n" +
                         "Bạn đã yêu cầu hoàn tiền cho vé đặt của mình. Vui lòng nhấn vào liên kết dưới đây để xác nhận hoàn tiền:\n\n%s\n\n" +

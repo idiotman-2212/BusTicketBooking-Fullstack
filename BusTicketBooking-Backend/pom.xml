@@ -13,7 +13,7 @@
     <name>BusTicketBooking</name>
     <description>Demo project for Spring Boot</description>
     <properties>
-        <java.version>20</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <!--	Stater Dependencies	-->
@@ -46,6 +46,16 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+<!--        redis-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
 
         <!--  Mysql driver  -->
         <dependency>
@@ -90,13 +100,6 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
-        <!--        dev tools-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
 
         <!--        swagger-->
         <dependency>
@@ -132,6 +135,12 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
+        </dependency>
+
+        <!--  ElasticSearch  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
 
     </dependencies>

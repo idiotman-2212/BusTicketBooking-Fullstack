@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -14,7 +16,8 @@ import lombok.experimental.FieldDefaults;
 })
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
-public class UserPermission {
+public class UserPermission implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

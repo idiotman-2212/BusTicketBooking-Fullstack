@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
-public class Discount {
+public class Discount implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

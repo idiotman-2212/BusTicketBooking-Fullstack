@@ -53,7 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     @Transactional
-    public AuthenticationResponse login(AuthenticationRequest authRequest) {
+    public  AuthenticationResponse login(AuthenticationRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(//xác thực người dùng bằng authentication manager
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
         );

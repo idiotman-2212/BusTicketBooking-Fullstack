@@ -4,12 +4,11 @@ import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import DoNotDisturbAltOutlinedIcon from "@mui/icons-material/DoNotDisturbAltOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import RouteIcon from "@mui/icons-material/Route";
-import RoomIcon from "@mui/icons-material/Room";
-import PinDropIcon from "@mui/icons-material/PinDrop";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import CommuteIcon from "@mui/icons-material/Commute";
-import PlaceIcon from "@mui/icons-material/Place";
+import ChairIcon from "@mui/icons-material/Chair";
+import BedIcon from "@mui/icons-material/Bed";
+import LocalTaxiIcon from "@mui/icons-material/LocalTaxi"; // Hoặc DirectionsCarIcon từ '@mui/icons-material/DirectionsCar'
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import DirectionsBusIcon from "@mui/icons-material/DirectionsBus";
 import {
   LoadingButton,
@@ -119,6 +118,8 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
   const [tripList, setTripList] = useState([]);
   const [selectedDepartureTimeBox, setSelectedDepartureTimeBox] = useState({});
   const [priceFilter, setPriceFilter] = useState([MIN_PRICE, MAX_PRICE]);
+  const [selectedCoachTypes, setSelectedCoachTypes] = useState([]);
+  const [priceSorting, setPriceSorting] = useState("");
   const prevTimeBox = useRef(selectedDepartureTimeBox); // keep old timebox to perform uncheck timebox filter
 
   const formik = useFormikContext();
@@ -224,6 +225,17 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
     }
   };
 
+  // Thêm hàm xử lý lọc loại xe
+  const handleCoachTypeChange = (coachType) => {
+    setSelectedCoachTypes((prev) => {
+      if (prev.includes(coachType)) {
+        return prev.filter((type) => type !== coachType);
+      } else {
+        return [...prev, coachType];
+      }
+    });
+  };
+
   //lọc giờ đi
   const filterTrips = (originalTrips) => {
     let filteredTrips = [];
@@ -258,6 +270,22 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
       }
       return priceFilter[0] <= finalPrice && finalPrice <= priceFilter[1];
     });
+
+    // coach type filter
+    if (selectedCoachTypes.length > 0) {
+      filteredTrips = filteredTrips.filter((trip) =>
+        selectedCoachTypes.includes(trip.coach.coachType)
+      );
+    }
+
+    // price sorting
+    if (priceSorting) {
+      filteredTrips.sort((a, b) => {
+        const priceA = a.price - (a.discount?.amount || 0);
+        const priceB = b.price - (b.discount?.amount || 0);
+        return priceSorting === "asc" ? priceA - priceB : priceB - priceA;
+      });
+    }
 
     return filteredTrips;
   };
@@ -296,7 +324,7 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
   useEffect(() => {
     const newFilteredTrips = filterTrips(findTripQuery?.data ?? []);
     setTripList(newFilteredTrips);
-  }, [priceFilter, selectedDepartureTimeBox]);
+  }, [priceFilter, selectedDepartureTimeBox, selectedCoachTypes, priceSorting]);
 
   const formatLocation = (location) => {
     if (!location) return t("Chưa xác định");
@@ -432,7 +460,7 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 format="dd/MM/yyyy"
-                label={t("From")}
+                label={t("Thời gian đi")}
                 minDate={new Date()}
                 value={parse(values.from, "yyyy-MM-dd", new Date())}
                 onChange={(newDate) => {
@@ -468,7 +496,7 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 format="dd/MM/yyyy"
-                label={t("To")}
+                label={t("Thời gian đến")}
                 minDate={parse(values.from, "yyyy-MM-dd", new Date())}
                 value={parse(values.to, "yyyy-MM-dd", new Date())}
                 onChange={(newDate) => {
@@ -533,33 +561,33 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
         <Box
           borderRadius="4px"
           gridColumn={isSmallScreen ? "span 4" : "span 1"}
-          pb="30px"
+          pb="10px"
           bgcolor={colors.primary[400]}
         >
           <Box
             display="flex"
             justifyContent="center"
             alignItems="center"
-            m="16px 0"
+            m="10px 0"
           >
             <Typography
-              variant="h5"
+              variant="h4"
               fontWeight="bold"
-              color={colors.greenAccent[400]}
+              color={colors.primary[300]}
             >
               {t("BỘ LỌC")} ({tripList.length})
             </Typography>
           </Box>
           <Divider />
           {/* departure time filter */}
-          <Typography m="10px 0" variant="h5" pl="10px">
+          <Typography m="8px 0" variant="h5" pl="10px" fontWeight="bold">
             {t("Giờ đi")}
           </Typography>
           <Box
             display="grid"
             gridTemplateColumns="repeat(2, 1fr)"
-            gap="10px"
-            padding="10px"
+            gap="5px"
+            padding="5px"
           >
             <Box
               onClick={() => handleTimeBoxChange("00:00", "06:00")}
@@ -634,9 +662,9 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
               <Typography>18:01 - 23:59</Typography>
             </Box>
           </Box>
-
+          <Divider />
           {/* price filter */}
-          <Typography m="10px 0" variant="h5" pl="10px">
+          <Typography m="10px 0" variant="h5" pl="10px" fontWeight="bold">
             {t("Giá vé")}
           </Typography>
           <Box
@@ -658,6 +686,117 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
             <Box display="flex" justifyContent="space-between">
               <Typography>{formatCurrency(priceFilter[0])}</Typography>
               <Typography>{formatCurrency(priceFilter[1])}</Typography>
+            </Box>
+          </Box>
+          <Divider />
+          {/* Lọc loại xe */}
+          <Typography m="10px 0" variant="h5" pl="10px" fontWeight="bold">
+            {t("Loại xe")}
+          </Typography>
+          <Box display="flex" flexDirection="column" gap="5px" padding="5px">
+            {[
+              { type: "CHAIR", icon: <ChairIcon /> },
+              { type: "BED", icon: <BedIcon /> },
+              { type: "LIMOUSINE", icon: <LocalTaxiIcon /> },
+            ].map((item) => (
+              <Box
+                key={item.type}
+                onClick={() => handleCoachTypeChange(item.type)}
+                display="flex"
+                alignItems="center"
+                gap="10px"
+                p="1px"
+                // Thêm viền và hiệu ứng hover
+                sx={{
+                  cursor: "pointer",
+                  bgcolor: selectedCoachTypes.includes(item.type)
+                    ? colors.greenAccent[400]
+                    : "transparent",
+                  border: `2px solid ${
+                    selectedCoachTypes.includes(item.type)
+                      ? colors.greenAccent[400]
+                      : colors.greenAccent[400]
+                  }`,
+                  borderRadius: "6px",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    bgcolor: colors.greenAccent[400],
+                  },
+                }}
+              >
+                {item.icon}
+                <Typography>{t(item.type)}</Typography>
+              </Box>
+            ))}
+          </Box>
+          <Divider />
+
+          {/* Sắp xếp giá */}
+          <Typography m="10px 0" variant="h5" pl="10px" fontWeight="bold">
+            {t("Sắp xếp giá")}
+          </Typography>
+          <Box display="flex" flexDirection="column" gap="5px" padding="5px">
+            {/* Giá thấp đến cao */}
+            <Box
+              onClick={() =>
+                setPriceSorting((prev) => (prev === "asc" ? "" : "asc"))
+              }
+              display="flex"
+              alignItems="center"
+              gap="10px"
+              p="1px"
+              // Thêm viền và hiệu ứng hover
+              sx={{
+                cursor: "pointer",
+                bgcolor:
+                  priceSorting === "asc"
+                    ? colors.greenAccent[400]
+                    : "transparent",
+                border: `2px solid ${
+                  priceSorting === "asc"
+                    ? colors.greenAccent[400]
+                    : colors.greenAccent[400]
+                }`,
+                borderRadius: "6px",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  bgcolor: colors.greenAccent[400],
+                },
+              }}
+            >
+              <ArrowUpwardIcon />
+              <Typography>{t("Giá thấp đến cao")}</Typography>
+            </Box>
+            {/* Giá cao đến thấp */}
+            <Box
+              onClick={() =>
+                setPriceSorting((prev) => (prev === "desc" ? "" : "desc"))
+              }
+              display="flex"
+              alignItems="center"
+              gap="10px"
+              p="1px"
+              // Thêm viền và hiệu ứng hover
+              sx={{
+                cursor: "pointer",
+                bgcolor:
+                  priceSorting === "desc"
+                    ? colors.greenAccent[400]
+                    : "transparent",
+                border: `2px solid ${
+                  priceSorting === "desc"
+                    ? colors.greenAccent[400]
+                    : colors.greenAccent[400]
+                }`,
+                borderRadius: "6px",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  bgcolor: colors.greenAccent[400],
+                },
+              }}
+            >
+              <ArrowDownwardIcon />
+              <Typography>{t("Giá cao đến thấp")}</Typography>
             </Box>
           </Box>
         </Box>
@@ -706,7 +845,7 @@ const TripForm = ({ field, setActiveStep, bookingData, setBookingData }) => {
                       alignItems: "center",
                       gridColumn: isSmallScreen ? "span 1" : "span 2",
                       borderRadius: "10px",
-                      backgroundColor:colors.primary[400],
+                      backgroundColor: colors.primary[400],
                     }}
                   >
                     <Box display="flex" flexDirection="column">

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -14,7 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
-public class Coach {
+public class Coach implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,4 +36,7 @@ public class Coach {
     @OneToMany(mappedBy = "coach")
     @JsonIgnore
      List<Trip> trips;
+
+    @Column(name = "image_url")
+    String imageUrl;
 }

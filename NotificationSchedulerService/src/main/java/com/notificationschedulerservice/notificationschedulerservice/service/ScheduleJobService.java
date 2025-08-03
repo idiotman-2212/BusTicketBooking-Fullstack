@@ -36,7 +36,7 @@ public class ScheduleJobService{
     @Scheduled(cron = "0 0 * * * ?") // Chạy mỗi giờ
     public void remindUnpaidBookings() {
         System.out.println("remindUnpaidBookings() is running...");
-        LocalDateTime reminderThreshold = LocalDateTime.now().plusHours(24);
+        LocalDateTime reminderThreshold = LocalDateTime.now().plusHours(36);
         List<Booking> unpaidBookings = bookingRepo.findUnpaidBookingsBefore(reminderThreshold);
         System.out.println("Number of unpaid bookings found: " + unpaidBookings.size());
 
@@ -134,7 +134,7 @@ public class ScheduleJobService{
             return;
         }
         Trip trip = booking.getTrip();
-        String sỏurce = trip != null ? trip.getSource().getName() : "Chuyến đi không xác định";
+        String source = trip != null ? trip.getSource().getName() : "Chuyến đi không xác định";
         String destination = trip != null ? trip.getDestination().getName() : "Chuyến đi không xác định";
         String departureTime = trip != null ? trip.getDepartureDateTime().toString() : "Không có thông tin";
         String pickUpLocation = trip != null && trip.getPickUpLocation() != null ? trip.getPickUpLocation().getAddress() : "Không có thông tin địa điểm đón";
@@ -145,13 +145,13 @@ public class ScheduleJobService{
         // Thông báo chi tiết với đầy đủ thông tin
         String detailedMessage = String.format(
                 "%s\n\nThông tin chuyến đi:\n" +
-                        "- Tuyến: %s\n" +
+                        "- Tuyến: %s - %s\n" +
                         "- Giờ khởi hành: %s\n" +
                         "- Địa điểm đón: %s\n" +
                         "- Địa điểm trả: %s\n" +
                         "- Chỗ ngồi: %s\n" +
                         "- Giá vé: %s\n",
-                message, sỏurce, destination, departureTime, pickUpLocation, dropOffLocation, seatNumbers, price
+                message, source, destination, departureTime, pickUpLocation, dropOffLocation, seatNumbers, price
         );
 
 
@@ -171,9 +171,6 @@ public class ScheduleJobService{
         userNotification.setUser(booking.getUser());
         userNotification.setIsRead(false);
         userNotificationRepo.save(userNotification);
-/*
-        // Gửi SMS
-        smsService.sendSms(booking.getPhone(), message);
 
         // Gửi Email
         String emailContent = "Kính chào quý khách, " + message;
@@ -182,7 +179,6 @@ public class ScheduleJobService{
                 title,
                 emailContent));
 
- */
     }
 
     private void sendRefundCompletedEmail(Booking booking) {

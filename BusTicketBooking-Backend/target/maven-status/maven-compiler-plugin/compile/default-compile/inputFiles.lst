@@ -1,4 +1,5 @@
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\BookingService.java
+C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\config\AsyncConfig.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\exception\InvalidInputException.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\repo\UserNotificationRepo.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\ReportService.java
@@ -108,6 +109,7 @@ C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\mai
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\service\impl\UserServiceImpl.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\dto\PermissionDto.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\exception\UnauthorizedException.java
+C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\config\redis\RedisConfig.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\repo\NotificationRepo.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\model\enumType\TokenType.java
 C:\Users\dienc\Desktop\ThucTap\BusTicketBooking\BusTicketBooking-Backend\src\main\java\com\ticketbooking\repo\TripLogRepo.java

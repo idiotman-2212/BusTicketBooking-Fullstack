@@ -16,6 +16,7 @@ import {
   Modal,
   Typography,
   useTheme,
+  CardMedia 
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -110,6 +111,58 @@ const Bus = () => {
                   <RoomOutLinedIcon sx={{ marginRight: "6px" }} /> {coachType}
                 </Box>
               )}
+            </Box>
+          );
+        },
+      },
+      {
+        header: t("Image"),
+        accessorKey: "imageUrl",
+        footer: "Image",
+        width: 100,
+        maxWidth: 150,
+        align: "center",
+        cell: (info) => {
+          const imageUrl = info.getValue();
+          return imageUrl ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <CardMedia
+                component="img"
+                image={imageUrl.startsWith('http') ? imageUrl : `${import.meta.env.VITE_UPLOAD_URL}/uploads/${imageUrl}`}
+                alt="Coach Image"
+                sx={{ 
+                  width: 80, 
+                  height: 80, 
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    transition: 'transform 0.3s ease'
+                  }
+                }}
+                onError={(e) => { 
+                  e.target.src = '/bus.png';
+                  e.target.onerror = null; // Prevent infinite loop
+                }}
+                onClick={() => {
+                  window.open(imageUrl.startsWith('http') ? imageUrl : `${import.meta.env.VITE_UPLOAD_URL}/uploads/${imageUrl}`, '_blank');
+                }}
+              />
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <CardMedia
+                component="img"
+                image="/bus.png"
+                alt="No Image"
+                sx={{ 
+                  width: 60, 
+                  height: 60, 
+                  objectFit: 'contain',
+                  opacity: 0.5
+                }}
+              />
             </Box>
           );
         },

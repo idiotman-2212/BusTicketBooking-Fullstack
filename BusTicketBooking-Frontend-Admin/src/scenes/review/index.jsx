@@ -12,6 +12,10 @@ import {
   Typography,
   useTheme,
   Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -43,19 +47,31 @@ const Review = () => {
   const page = Number(queryObj?.page) || 1; // Trang mặc định là 1
   const limit = Number(queryObj?.limit) || 5; // Số mục mặc định là 5
 
+  const [driverRatingFilter, setDriverRatingFilter] = useState("");
+  const [coachRatingFilter, setCoachRatingFilter] = useState("");
+  const [tripRatingFilter, setTripRatingFilter] = useState("");
+
   const [pagination, setPagination] = useState({
-    pageIndex: page - 1,
-    pageSize: limit,
+    pageIndex: isNaN(page - 1) ? 0 : page - 1, // Thêm kiểm tra isNaN
+    pageSize: isNaN(limit) ? 5 : limit,
   });
 
   // Fetch all reviews
   const { data } = useQuery({
     queryKey: ["reviews", pagination],
     queryFn: () => {
-      setSearchParams({ page: pagination.pageIndex + 1, limit: pagination.pageSize });
-      return reviewApi.getPageOfReviews(pagination.pageIndex, pagination.pageSize);
+      // Đảm bảo giá trị là số hợp lệ trước khi gọi API
+      const currentPage = isNaN(pagination.pageIndex) ? 0 : pagination.pageIndex;
+      const currentLimit = isNaN(pagination.pageSize) ? 5 : pagination.pageSize;
+      
+      setSearchParams({
+        page: currentPage + 1,
+        limit: currentLimit,
+      });
+
+      return reviewApi.getPageOfReviews(currentPage, currentLimit);
     },
-    keepPreviousData: true, // Giữ dữ liệu trước đó trong khi tải dữ liệu mới
+    keepPreviousData: true,
   });
 
   // Render stars for rating
@@ -77,7 +93,23 @@ const Review = () => {
     if (!location) return t("Chưa xác định");
 
     const { address, ward, district, province } = location;
-    return `${address || ""}${ward ? ", " + ward : ""}${district ? ", " + district : ""}${province?.name ? ", " + province.name : ""}`;
+    return `${address || ""}${ward ? ", " + ward : ""}${
+      district ? ", " + district : ""
+    }${province?.name ? ", " + province.name : ""}`;
+  };
+
+  const filterData = (data) => {
+    return data?.filter((review) => {
+      const matchesDriverRating =
+        !driverRatingFilter ||
+        review.driverRating === Number(driverRatingFilter);
+      const matchesCoachRating =
+        !coachRatingFilter || review.coachRating === Number(coachRatingFilter);
+      const matchesTripRating =
+        !tripRatingFilter || review.tripRating === Number(tripRatingFilter);
+
+      return matchesDriverRating && matchesCoachRating && matchesTripRating;
+    });
   };
 
   // Define columns for reviews
@@ -92,7 +124,11 @@ const Review = () => {
         cell: (info) => {
           const { user } = info.row.original;
           return (
-            <Box display="flex" alignItems="center" justifyContent="space-around">
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-around"
+            >
               {user?.username || t("Unknown User")}
               <IconButton
                 onClick={() => {
@@ -154,7 +190,11 @@ const Review = () => {
         cell: (info) => {
           const { trip } = info.row.original;
           return (
-            <Box display="flex" alignItems="center" justifyContent="space-around">
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-around"
+            >
               {trip?.source?.name} ➔ {trip?.destination?.name}
               <IconButton
                 onClick={() => {
@@ -202,9 +242,11 @@ const Review = () => {
     ? data?.dataList?.find((r) => r.id === selectedRow)?.trip
     : null;
 
+  const filteredData = filterData(data?.dataList) || [];
+
   // Set up react-table with data and columns
   const table = useReactTable({
-    data: data?.dataList ?? [],
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -218,13 +260,34 @@ const Review = () => {
     manualPagination: true,
   });
 
+  const StarFilterSelect = ({ value, onChange, label }) => (
+    <FormControl sx={{ minWidth: 120, mr: 2 }}>
+      <InputLabel>{label}</InputLabel>
+      <Select value={value} onChange={onChange} label={label} size="small">
+        <MenuItem value="">
+          <em>{t("All")}</em>
+        </MenuItem>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <MenuItem key={star} value={star}>
+            {star} {t("Stars")}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title={t("Reviews")} subTitle={t("Manage all reviews")} />
 
         {/* Search input */}
-        <Box width="350px" display="flex" bgcolor={colors.primary[400]} borderRadius="3px">
+        <Box
+          width="350px"
+          display="flex"
+          bgcolor={colors.primary[400]}
+          borderRadius="3px"
+        >
           <InputBase
             sx={{ ml: 2, flex: 1 }}
             placeholder={t("Search")}
@@ -235,6 +298,25 @@ const Review = () => {
             <SearchIcon />
           </IconButton>
         </Box>
+
+        {/* Add Star Filters */}
+      <Box display="flex" alignItems="center" my={2}>
+        <StarFilterSelect
+          value={driverRatingFilter}
+          onChange={(e) => setDriverRatingFilter(e.target.value)}
+          label={t("Driver Rating")}
+        />
+        <StarFilterSelect
+          value={coachRatingFilter}
+          onChange={(e) => setCoachRatingFilter(e.target.value)}
+          label={t("Coach Rating")}
+        />
+        <StarFilterSelect
+          value={tripRatingFilter}
+          onChange={(e) => setTripRatingFilter(e.target.value)}
+          label={t("Trip Rating")}
+        />
+      </Box>
       </Box>
 
       {/* Review Table */}
@@ -244,7 +326,8 @@ const Review = () => {
       <Modal
         sx={{
           "& .MuiBox-root": {
-            bgcolor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+            bgcolor:
+              theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
           },
         }}
         open={openUserModal}
@@ -300,7 +383,8 @@ const Review = () => {
       <Modal
         sx={{
           "& .MuiBox-root": {
-            bgcolor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+            bgcolor:
+              theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
           },
         }}
         open={openTripModal}
@@ -318,7 +402,9 @@ const Review = () => {
             p: 4,
           }}
         >
-          <Typography fontWeight="bold" variant="h4">{t("TRIP DETAIL")}</Typography>
+          <Typography fontWeight="bold" variant="h4">
+            {t("TRIP DETAIL")}
+          </Typography>
           {tripDetail && (
             <>
               <TextField
@@ -335,7 +421,9 @@ const Review = () => {
               />
               <TextField
                 label={t("Driver Name")}
-                value={`${tripDetail?.driver?.firstName || ""} ${tripDetail?.driver?.lastName || ""}`}
+                value={`${tripDetail?.driver?.firstName || ""} ${
+                  tripDetail?.driver?.lastName || ""
+                }`}
                 fullWidth
                 margin="normal"
               />

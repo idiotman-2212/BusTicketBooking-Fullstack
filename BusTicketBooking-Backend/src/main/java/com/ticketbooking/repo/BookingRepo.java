@@ -5,6 +5,7 @@ import com.ticketbooking.model.Trip;
 import com.ticketbooking.model.User;
 import com.ticketbooking.model.enumType.PaymentStatus;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;

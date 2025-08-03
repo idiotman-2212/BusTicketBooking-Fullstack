@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,7 +21,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
-public class Driver {
+public class Driver implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

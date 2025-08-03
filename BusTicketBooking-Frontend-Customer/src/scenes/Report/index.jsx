@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -23,6 +23,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { useTranslation } from "react-i18next";
 import {
   getMonthlyPointsReport,
@@ -31,8 +32,8 @@ import {
 } from "../../queries/report/reportQueries";
 import { useTheme } from "@mui/material/styles";
 
-// Đăng ký các scale và các thành phần cần thiết
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+// Đăng ký các scale, plugin và thành phần cần thiết
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ChartDataLabels);
 
 const Report = () => {
   const { t } = useTranslation();
@@ -58,33 +59,108 @@ const Report = () => {
         }
         setReportData(data.reportData);
       } catch (err) {
-        setError("Có lỗi xảy ra khi tải dữ liệu.");
+        setError(t("Có lỗi xảy ra khi tải dữ liệu."));
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [timeFrame]);
+  }, [timeFrame, t]);
 
-  const chartData = {
+  const chartData = useMemo(() => ({
     labels: reportData ? Object.keys(reportData) : [],
     datasets: [
       {
         label: t("Điểm Nhận Được"),
-        data: reportData ? Object.values(reportData).map(item => item["Points Earned"]) : [],
+        data: reportData ? Object.values(reportData).map((item) => item["Points Earned"]) : [],
         fill: false,
-        borderColor: "rgba(75, 192, 192, 1)",
-        tension: 0.1,
+        borderColor: "rgba(54, 162, 235, 1)", // Màu xanh lam
+        backgroundColor: "rgba(54, 162, 235, 0.2)", // Màu nền xanh lam nhạt
+        pointBackgroundColor: "rgba(54, 162, 235, 1)", // Màu của các điểm
+        pointBorderColor: "#fff",
+        pointRadius: 6, // Tăng kích thước điểm
+        borderWidth: 3, // Tăng độ dày đường
+        tension: 0.4, // Làm đường cong nhẹ
       },
       {
         label: t("Điểm Sử Dụng"),
-        data: reportData ? Object.values(reportData).map(item => item["Points Used"]) : [],
+        data: reportData ? Object.values(reportData).map((item) => item["Points Used"]) : [],
         fill: false,
-        borderColor: "rgba(255, 99, 132, 1)",
-        tension: 0.1,
+        borderColor: "rgba(255, 99, 132, 1)", // Màu đỏ
+        backgroundColor: "rgba(255, 99, 132, 0.2)", // Màu nền đỏ nhạt
+        pointBackgroundColor: "rgba(255, 99, 132, 1)", // Màu của các điểm
+        pointBorderColor: "#fff",
+        pointRadius: 6,
+        borderWidth: 3,
+        tension: 0.4,
       },
     ],
+  }), [reportData, t]);
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          font: {
+            size: 14,
+            family: "Arial, sans-serif",
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          afterBody: (tooltipItems) => {
+            const earned = tooltipItems[0]?.raw || 0;
+            const used = tooltipItems[1]?.raw || 0;
+            const difference = earned - used;
+            return `${t("Chênh Lệch")}: ${difference}`;
+          },
+        },
+      },
+      datalabels: {
+        display: true,
+        align: "top",
+        color: "black",
+        font: {
+          size: 12,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        title: {
+          display: true,
+          text: t("Thời Gian"),
+          font: {
+            size: 16,
+            family: "Arial, sans-serif",
+          },
+        },
+      },
+      y: {
+        grid: {
+          color: "rgba(200, 200, 200, 0.2)",
+        },
+        title: {
+          display: true,
+          text: t("Điểm"),
+          font: {
+            size: 16,
+            family: "Arial, sans-serif",
+          },
+        },
+        ticks: {
+          beginAtZero: true,
+        },
+      },
+    },
   };
 
   return (
@@ -94,14 +170,22 @@ const Report = () => {
           {t("Báo Cáo Điểm Xu")}
         </Typography>
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center">
-            <Skeleton variant="rectangular" width="100%" height={300} />
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <CircularProgress />
+            <Typography mt={2}>{t("Đang tải dữ liệu...")}</Typography>
           </Box>
         ) : error ? (
-          <Typography color="error">{error}</Typography>
+          <Box textAlign="center">
+            <Typography color="error" marginBottom={2}>{error}</Typography>
+            <Button variant="contained" color="primary" onClick={() => window.location.reload()}>
+              {t("Thử Lại")}
+            </Button>
+          </Box>
         ) : (
           <Box>
-            <Line data={chartData} />
+            <Box height={isMobile ? 300 : 400}>
+              <Line data={chartData} options={chartOptions} />
+            </Box>
             <Box mt={2} display="flex" justifyContent="space-between" alignItems="center" flexDirection={isMobile ? "column" : "row"}>
               <FormControl variant="outlined" sx={{ minWidth: 120, mb: isMobile ? 2 : 0 }}>
                 <InputLabel id="time-frame-select-label">{t("Chọn Thời Gian")}</InputLabel>

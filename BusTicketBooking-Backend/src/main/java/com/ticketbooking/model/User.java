@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,7 +27,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
-public class User implements UserDetails {
+public class User implements UserDetails, Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     String username;
 
@@ -79,14 +82,6 @@ public class User implements UserDetails {
         this.loyaltyPoints = this.loyaltyPoints.subtract(points);
     }
 
-    public boolean hasEnoughPoints(BigDecimal points) {
-        if (this.loyaltyPoints == null) {
-            return false; // Hoặc xử lý khác tùy yêu cầu của hệ thống
-        }
-        return this.loyaltyPoints.compareTo(points) >= 0;
-    }
-
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     List<UserNotification> userNotifications = new ArrayList<>();
@@ -94,7 +89,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     @JsonIgnore
     List<Notification> sentNotifications = new ArrayList<>();
-
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -106,6 +100,9 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "user")
     List<Booking> bookings;
+
+    @Column(name = "avatar_url")
+    String avatarUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore

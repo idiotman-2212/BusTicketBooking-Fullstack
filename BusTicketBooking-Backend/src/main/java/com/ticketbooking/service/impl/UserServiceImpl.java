@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(cacheNames = "users_list")
     public List<User> findAll() {
         return userRepo.findAll();
     }
@@ -140,6 +141,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "user_permissions", key = "#screenPermissionDto.username")
     public PermissionDto updateUserScreenPermission(ScreenPermissionDto screenPermissionDto) {
         User user = userRepo.findByUsername(screenPermissionDto.getUsername()).get();
         // delete old crud roles not in main roles
