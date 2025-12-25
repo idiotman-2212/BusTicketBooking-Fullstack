@@ -1,0 +1,85 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: BusTicketBooking
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - bus-ticket-network
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - bus-ticket-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bus-ticket-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/BusTicketBooking?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_USERNAME=datvexegiare@gmail.com
+      - SPRING_MAIL_PASSWORD=zkbd knlc feqj ymjv
+      - SPRING_MAIL_PORT=587
+      - SPRING_PROFILES_ACTIVE=production
+      - SERVER_PORT=8080
+      - KEY=14e298023fd379d4f5a725a5cf20b2bb47deaa2f8f5ab625e9ad33fa0a1a3d3c
+    ports:
+      - "8080:8080"
+    networks:
+      - bus-ticket-network
+
+  notification-scheduler:
+    build:
+      context: ../NotificationSchedulerService
+      dockerfile: Dockerfile
+    container_name: notification-scheduler
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/BusTicketBooking?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_USERNAME=datvexegiare@gmail.com
+      - SPRING_MAIL_PASSWORD=zkbd knlc feqj ymjv
+      - SPRING_MAIL_PORT=587
+      - SERVER_PORT=8888
+    ports:
+      - "8888:8888"
+    networks:
+      - bus-ticket-network
+
+networks:
+  bus-ticket-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
